@@ -8,6 +8,7 @@ from database.db_models import *
 from flask_httpauth import HTTPBasicAuth
 from hmac import compare_digest
 from get_all_measurment_data import get_all_measurement_data
+from show_measurments import show_measurements
 import random
 
 app = Flask(__name__,template_folder='/home/pinghero/tempmonitor/templates/')
