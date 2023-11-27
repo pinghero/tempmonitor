@@ -1,5 +1,7 @@
 
 from flask import render_template
+from get_all_measurment_data import get_all_measurement_data
+
 def getRandomColor():
     import random
     return "#{:06x}".format(random.randint(0, 0xFFFFFF))
