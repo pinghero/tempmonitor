@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/static/styles/styles.css" />
+    	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    </head>
+        <canvas id="linechart" width="900" height="200"></canvas>
+<script>
+  var ctx = document.getElementById('linechart').getContext('2d');
+
+  // Assuming you have passed data_json from Flask
+  var data_json = {{ data_json | safe }};
+
+  var linechart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: data_json.labels,
+      datasets: data_json.datasets
+    },
+    options: {
+      scales: {
+        y: {
+          responsive: false
+        }
+      }
+    }
+  });
+
+</script>
+    <table class="styled-table">
+        <tr>
+          <th>Timestamp</th>
+          <th>Location</th>
+          <th>Temperature</th>
+          <th>Humidity</th>
+        </tr>
+        {% for temp in temps %}
+        <tr>
+          <td>{{ temp.timestamp }}</td>
+          <td>{{ temp.location }}</td>
+          <td>{{ temp.temperature }}</td>
+          <td>{{ temp.humidity }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+</body>
+</html> 
