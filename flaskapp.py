@@ -4,9 +4,8 @@ import mariadb
 from datetime import datetime
 import hashlib
 from route_functions import *
-from database.db_models import *
+from database.db_models import measurments, users
 from flask_httpauth import HTTPBasicAuth
-from hmac import compare_digest
 from show_measurments import show_measurements
 import random
 
@@ -20,49 +19,20 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://pinghero:Cro0asan@local
 
 db.init_app(app)
 
+# @auth.verify_password
+# def verify_password(username, password):
+#     user = users.query.filter(users.username == username).first()
+#     if user is not None:
+#         generated_hash = hashlib.sha256(user.salt.encode() + password.encode()).hexdigest()
+#         if compare_digest(user.pwd_hash, generated_hash):
+#             print("Pass is right")
+#             return username
+#     return False
+
 @auth.login_required
 @app.route("/", methods=['GET'])
 def index():
     return show_measurements()
-#     # Use data from the database
-#     all_measurement_data = get_all_measurement_data()
-#
-#     # Extract data for JavaScript
-#     labels = sorted(list(set(measurement['timestamp'] for measurement in all_measurement_data)))
-#     datasets = []
-#
-#     for location in set(measurement['location'] for measurement in all_measurement_data):
-#         temperature_values = [measurement['temperature'] for measurement in all_measurement_data if measurement['location'] == location]
-#         datasets.append({
-#             'label': location,
-#             'data': temperature_values,
-#             'fill': False,
-#             'borderColor': getRandomColor(),
-#             'lineTension': 0.1
-#         })
-#
-#     # Convert data to JSON format
-#     data_json = {
-#         'labels': labels,
-#         'datasets': datasets
-#     }
-#
-#     return render_template('measurements.html', data_json=json.dumps(data_json), temps=all_measurement_data)
-#
-# # Function to generate a random color
-# def getRandomColor():
-#     import random
-#     return "#{:06x}".format(random.randint(0, 0xFFFFFF))
-
-@auth.verify_password
-def verify_password(username, password):
-    user = users.query.filter(users.username == username).first()
-    if user is not None:
-        generated_hash = hashlib.sha256(user.salt.encode() + password.encode()).hexdigest()
-        if compare_digest(user.pwd_hash, generated_hash):
-            print("Pass is right")
-            return username
-    return False
 
 @app.route("/add", methods=['POST'])
 @auth.login_required
