@@ -1,4 +1,4 @@
-from db_models import *
+from database.db_models import *
 from flask import Flask, render_template, request, url_for, redirect, g
 import json
 import os

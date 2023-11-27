@@ -1,17 +1,13 @@
-from flask import Flask, render_template, request, url_for, redirect, g
+from flask import Flask, render_template, request, g
 import json
-import os
 import mariadb
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import hashlib
-import os
 from route_functions import *
-from db_models import *
+from database.db_models import *
 from flask_httpauth import HTTPBasicAuth
 from hmac import compare_digest
 import random
-from datetime import datetime, timedelta
 
 app = Flask(__name__,template_folder='/home/pinghero/tempmonitor/templates/')
 auth = HTTPBasicAuth()
