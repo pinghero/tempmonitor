@@ -23,7 +23,7 @@ db.init_app(app)
 
 @auth.login_required
 @app.route("/", methods=['GET'])
-def show_measurements():
+def index():
     return show_measurements()
 #     # Use data from the database
 #     all_measurement_data = get_all_measurement_data()
