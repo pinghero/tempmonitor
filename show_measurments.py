@@ -13,6 +13,7 @@ def show_measurements():
 
     for measurement in all_measurement_data:
         measurments_by_date.append(set(measurement['timestamp'][:-9]))
+    labels = sorted(measurments_by_date)
     # Extract data for JavaScript
     # labels = sorted(list(set(measurement['timestamp'] for measurement in all_measurement_data)))
     datasets = []
