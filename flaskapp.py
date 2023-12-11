@@ -21,15 +21,7 @@ db.init_app(app)
 
 @auth.verify_password
 def password_check(username, password):
-    return verify_password(username, password)        
-# def verify_password(username, password):
-#     user = users.query.filter(users.username == username).first()
-#     if user is not None:
-#         generated_hash = hashlib.sha256(user.salt.encode() + password.encode()).hexdigest()
-#         if compare_digest(user.pwd_hash, generated_hash):
-#             print("Pass is right")
-#             return username
-#     return False
+    return verify_password(username, password)
 
 @app.route("/", methods=['GET'])
 @auth.login_required
