@@ -43,7 +43,9 @@ def show_measurements():
         'labels': labels,
         'datasets': datasets
     }
-
+    print(labels)
+    print('----------------------------')
+    print(datasets)
     return render_template('measurements.html', data_json=json.dumps(data_json), temps=all_measurement_data)
     ####
     # # Use data from the database
