@@ -9,13 +9,9 @@ def getRandomColor():
 def show_measurements():
     # Use data from the database
     all_measurement_data = get_all_measurement_data()
-    measurments_by_date = []
 
-    for measurement in all_measurement_data:
-        measurments_by_date.append(set(measurement['timestamp'][:-9]))
-    labels = sorted(measurments_by_date)
     # Extract data for JavaScript
-    # labels = sorted(list(set(measurement['timestamp'] for measurement in all_measurement_data)))
+    labels = sorted(list(set(measurement['timestamp'][:-9] for measurement in all_measurement_data)))
     datasets = []
 
     for location in set(measurement['location'] for measurement in all_measurement_data):
