@@ -1,5 +1,6 @@
 from hmac import compare_digest
 from database.db_models import users
+import hashlib
 
 def verify_password(username, password):
     user = users.query.filter(users.username == username).first()

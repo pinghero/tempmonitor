@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, g
 import json
 import mariadb
 from datetime import datetime
-import hashlib
+from verify_password import verify_password
 from route_functions import *
 from database.db_models import measurments, users
 from flask_httpauth import HTTPBasicAuth
@@ -19,7 +19,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://pinghero:Cro0asan@local
 
 db.init_app(app)
 
-# @auth.verify_password
+@auth.verify_password
+def password_check(username, password):
+    return verify_password(username, password)        
 # def verify_password(username, password):
 #     user = users.query.filter(users.username == username).first()
 #     if user is not None:
@@ -29,8 +31,8 @@ db.init_app(app)
 #             return username
 #     return False
 
-@auth.login_required
 @app.route("/", methods=['GET'])
+@auth.login_required
 def index():
     return show_measurements()
 
