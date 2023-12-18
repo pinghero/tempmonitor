@@ -22,7 +22,7 @@ def show_measurements():
         timestamp = measurement['timestamp'][:-9]  # Remove the time part for date
 
         temperature_data[location][timestamp].append(measurement['temperature'])
-
+    print(temperature_data)
     # Calculate the average temperature for each date and each location
     for location, date_temps in temperature_data.items():
         temperature_values = []
