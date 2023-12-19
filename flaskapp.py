@@ -28,6 +28,10 @@ def password_check(username, password):
 def index():
     return show_measurements()
 
+# @app.route("/filtered", methods=['GET'])
+# @auth.login_required
+# def index():
+#     return show_filtered_measurements()
 @app.route("/add", methods=['POST'])
 @auth.login_required
 def add():
