@@ -8,13 +8,11 @@
         <link rel="stylesheet" href="/static/styles/styles.css" />
     	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     </head>
-        <canvas id="linechart" width="900" height="200"></canvas>
+    <canvas id="linechart" width="900" height="200"></canvas>
+
 <script>
   var ctx = document.getElementById('linechart').getContext('2d');
-
-  // Assuming you have passed data_json from Flask
   var data_json = {{ data_json | safe }};
-
   var linechart = new Chart(ctx, {
     type: "line",
     data: {
@@ -29,9 +27,7 @@
       }
     }
   });
-
 </script>
-
 
     <table class="styled-table">
         <tr>
