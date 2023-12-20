@@ -1,3 +1,4 @@
+from collections import defaultdict
 
 # Help function to generate random color for different location representation
 def get_random_color():
@@ -36,3 +37,5 @@ def convert_graph_data(all_measurement_data):
         'labels': labels,
         'datasets': datasets
     }
+
+    return data_json
