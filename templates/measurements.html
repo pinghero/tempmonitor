@@ -29,20 +29,22 @@
   });
 </script>
 
-<button id="temperatureButton" onclick="toggleInput('temp')">Temperature</button>
-<input type="number" id="tempFrom" class="hide" placeholder="From">
-<input type="number" id="tempTo" class="hide" placeholder="To">
+<div class="button-container">
+    <button id="temperatureButton" onclick="toggleInput('temp')">Temperature</button>
+    <input type="number" id="tempFrom" class="hide" placeholder="From">
+    <input type="number" id="tempTo" class="hide" placeholder="To">
 
-<button id="humidityButton" onclick="toggleInput('humidity')">Humidity</button>
-<input type="number" id="humidityFrom" class="hide" placeholder="From">
-<input type="number" id="humidityTo" class="hide" placeholder="To">
+    <button id="humidityButton" onclick="toggleInput('humidity')">Humidity</button>
+    <input type="number" id="humidityFrom" class="hide" placeholder="From">
+    <input type="number" id="humidityTo" class="hide" placeholder="To">
 
-<button id="dateButton" onclick="toggleInput('date')">Date</button>
-<input type="date" id="dateFrom" class="hide">
-<input type="date" id="dateTo" class="hide">
+    <button id="dateButton" onclick="toggleInput('date')">Date</button>
+    <input type="date" id="dateFrom" class="hide">
+    <input type="date" id="dateTo" class="hide">
 
-<button id="locationButton" onclick="toggleLocationInput()">Location</button>
-<input type="text" id="location" class="hide" placeholder="Enter Location">
+    <button id="locationButton" onclick="toggleLocationInput()">Location</button>
+    <input type="text" id="location" class="hide" placeholder="Enter Location">
+</div>
 
 <script>
     function toggleInput(field) {
