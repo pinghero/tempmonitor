@@ -1,7 +1,8 @@
 from database.db_models import measurments
+
+# Queries all measurement data in database and returns them as a list of dictionaries
 def get_all_measurement_data():
     measurements = measurments.query.all()
-
     data = []
 
     for measurement in measurements:
@@ -14,5 +15,8 @@ def get_all_measurement_data():
             'timestamp': timestamp
         })
 
-
     return data
+
+def get_filtered_data():
+ # implement later
+    return None
