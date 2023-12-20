@@ -58,7 +58,6 @@ input.show {
 }
 
 .button-container {
-    border: 1px solid #000;
     display: flex;
     flex-wrap: wrap;
     justify-content: center; /* Center align the content horizontally */
