@@ -71,20 +71,14 @@
             <th onclick="sortTable(2)" class="sortable">Temperature<span class="sort-indicator"></span></th>
             <th onclick="sortTable(3)" class="sortable">Humidity<span class="sort-indicator"></span></th>
         </tr>
-        <!-- Add your {% for temp in temps %} loop here -->
+        {% for temp in temps %}
         <tr>
-            <td>2023-01-01 12:00:00</td>
-            <td>Location1</td>
-            <td>25</td>
-            <td>60</td>
+          <td>{{ temp.timestamp }}</td>
+          <td>{{ temp.location }}</td>
+          <td>{{ temp.temperature }}</td>
+          <td>{{ temp.humidity }}</td>
         </tr>
-        <tr>
-            <td>2023-01-02 14:30:00</td>
-            <td>Location2</td>
-            <td>22</td>
-            <td>65</td>
-        </tr>
-        <!-- Add more rows as needed -->
+        {% endfor %}
     </table>
 
     <script>
