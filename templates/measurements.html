@@ -7,12 +7,30 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="/static/styles/styles.css" />
     	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script src="js/sort_buttons.js"></script>
     </head>
     <h1>Last 10 days measured</h1>
     <hr>
     <canvas id="linechart" width="900" height="200"></canvas>
 
-<script src="js/last_measurements_chart.js"></script>
+<script>
+  var ctx = document.getElementById('linechart').getContext('2d');
+  var data_json = {{ data_json | safe }};
+  var linechart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: data_json.labels,
+      datasets: data_json.datasets
+    },
+    options: {
+      scales: {
+        y: {
+          responsive: false
+        }
+      }
+    }
+  });
+</script>
 
     <h1>All measurement data</h1>
     <hr>
