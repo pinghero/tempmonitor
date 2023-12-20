@@ -8,11 +8,11 @@
         <link rel="stylesheet" href="/static/styles/styles.css" />
     	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <script src="js/sort_buttons.js"></script>
+        <script src="js/header_sorting.js"></script>
     </head>
     <h1>Last 10 days measured</h1>
     <hr>
     <canvas id="linechart" width="900" height="200"></canvas>
-
 <script>
   var ctx = document.getElementById('linechart').getContext('2d');
   var data_json = {{ data_json | safe }};
@@ -50,21 +50,6 @@
     <button id="locationButton" onclick="toggleLocationInput()">Location</button>
     <input type="text" id="location" class="hide" placeholder="Enter Location">
 </div>
-
-<script>
-    function toggleInput(field) {
-        var inputFrom = document.getElementById(field + 'From');
-        var inputTo = document.getElementById(field + 'To');
-        inputFrom.classList.toggle("show");
-        inputTo.classList.toggle("show");
-    }
-
-    function toggleLocationInput() {
-        var locationInput = document.getElementById('location');
-        locationInput.classList.toggle("show");
-    }
-</script>
-
     <table class="styled-table" id="myTable">
         <tr>
             <th onclick="sortTable(0)" class="sortable">Timestamp<span class="sort-indicator"></span></th>
@@ -82,51 +67,5 @@
         {% endfor %}
     </table>
 
-    <script>
-        var sortedColumn = -1; // Store the index of the sorted column
-
-        function sortTable(n) {
-            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-            table = document.getElementById("myTable");
-            switching = true;
-            // Set the sorting direction to ascending if not previously sorted
-            dir = sortedColumn === n ? (table.getAttribute('data-dir') === 'asc' ? 'desc' : 'asc') : 'asc';
-
-            // Reset all arrows
-            document.querySelectorAll('.sortable .sort-indicator').forEach(indicator => indicator.innerHTML = '');
-
-            // Add arrow based on the current direction
-            document.querySelector('.sortable:nth-child(' + (n + 1) + ') .sort-indicator').innerHTML = dir === 'asc' ? '▲' : '▼';
-
-            // Store the current sorted column and direction
-            sortedColumn = n;
-            table.setAttribute('data-dir', dir);
-
-            // Sorting logic
-            var rows = Array.from(table.getElementsByTagName("tr")).slice(1); // Exclude the header row
-            rows.sort(function (a, b) {
-                var aValue = a.getElementsByTagName("td")[n].textContent.trim();
-                var bValue = b.getElementsByTagName("td")[n].textContent.trim();
-
-                if (dir === 'asc') {
-                    return aValue.localeCompare(bValue);
-                } else {
-                    return bValue.localeCompare(aValue);
-                }
-            });
-
-            // Reorder rows in the table
-            for (var i = 0; i < rows.length; i++) {
-                table.appendChild(rows[i]);
-            }
-        }
-
-        function toggleInput(filter) {
-            var fromInput = document.getElementById(filter + 'From');
-            var toInput = document.getElementById(filter + 'To');
-            fromInput.classList.toggle("show");
-            toInput.classList.toggle("show");
-        }
-    </script>
 </body>
 </html> 
