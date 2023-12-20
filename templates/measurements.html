@@ -29,6 +29,35 @@
   });
 </script>
 
+<button id="temperatureButton" onclick="toggleInput('temp')">Temperature</button>
+<input type="number" id="tempFrom" class="hide" placeholder="From">
+<input type="number" id="tempTo" class="hide" placeholder="To">
+
+<button id="humidityButton" onclick="toggleInput('humidity')">Humidity</button>
+<input type="number" id="humidityFrom" class="hide" placeholder="From">
+<input type="number" id="humidityTo" class="hide" placeholder="To">
+
+<button id="dateButton" onclick="toggleInput('date')">Date</button>
+<input type="date" id="dateFrom" class="hide">
+<input type="date" id="dateTo" class="hide">
+
+<button id="locationButton" onclick="toggleLocationInput()">Location</button>
+<input type="text" id="location" class="hide" placeholder="Enter Location">
+
+<script>
+    function toggleInput(field) {
+        var inputFrom = document.getElementById(field + 'From');
+        var inputTo = document.getElementById(field + 'To');
+        inputFrom.classList.toggle("show");
+        inputTo.classList.toggle("show");
+    }
+
+    function toggleLocationInput() {
+        var locationInput = document.getElementById('location');
+        locationInput.classList.toggle("show");
+    }
+</script>
+
     <table class="styled-table">
         <tr>
           <th>Timestamp</th>
