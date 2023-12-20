@@ -59,7 +59,9 @@ input.show {
 
 .button-container {
     border: 1px solid #000;
-    display: inline-block;
-    padding: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Center align the content horizontally */
+    padding: 10px;
     border-radius: 5px;
 }
