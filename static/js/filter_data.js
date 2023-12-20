@@ -1,36 +1,44 @@
 function applyFilters() {
-    // Get filter values
     var tempFrom = parseFloat(document.getElementById('tempFrom').value);
     var tempTo = parseFloat(document.getElementById('tempTo').value);
-    var humidityFrom = parseFloat(document.getElementById('humidityFrom').value);
-    var humidityTo = parseFloat(document.getElementById('humidityTo').value);
-    var dateFrom = document.getElementById('dateFrom').value;
-    var dateTo = document.getElementById('dateTo').value;
-    var location = document.getElementById('location').value;
 
-    // Filter the data based on user input
-    var filteredData = temps.filter(function (temp) {
-        var withinTempRange = (isNaN(tempFrom) || temp.temperature >= tempFrom) &&
-            (isNaN(tempTo) || temp.temperature <= tempTo);
-        var withinHumidityRange = (isNaN(humidityFrom) || temp.humidity >= humidityFrom) &&
-            (isNaN(humidityTo) || temp.humidity <= humidityTo);
-        var withinDateRange = (!dateFrom || new Date(temp.timestamp) >= new Date(dateFrom)) &&
-            (!dateTo || new Date(temp.timestamp) <= new Date(dateTo));
-        var matchesLocation = !location || temp.location.toLowerCase().includes(location.toLowerCase());
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/update_data", true);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
-        return withinTempRange && withinHumidityRange && withinDateRange && matchesLocation;
-    });
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            // Update the table with the received data
+            var newData = JSON.parse(xhr.responseText);
+            updateTable(newData);
+        }
+    };
 
-    // Update the table with filtered data
-    updateTable(filteredData);
+    xhr.send(JSON.stringify({
+        tempFrom: tempFrom,
+        tempTo: tempTo,
+    }));
+}
+
+function resetFilters() {
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "/get_original_data", true);
+
+xhr.onreadystatechange = function () {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+        // Update the table with the received original data
+        var originalData = JSON.parse(xhr.responseText);
+        updateTable(originalData);
+    }
+};
+
+xhr.send();
 }
 
 function updateTable(data) {
-    // Clear existing table rows
     var tableBody = document.querySelector('#myTable tbody');
     tableBody.innerHTML = '';
 
-    // Append new rows based on filtered data
     data.forEach(function (temp) {
         var row = tableBody.insertRow();
         row.insertCell(0).textContent = temp.timestamp;

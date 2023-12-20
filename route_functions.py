@@ -16,6 +16,9 @@ import uuid
 #        row.time = row.created_on.time()
 #    return render_template('measurements.html', temps=rows)
 
+def filter_data():
+    filters = request.get_json()
+    print(filters)
 def get_all_measurement_data():
     measurements_data = measurments.query.all()
 
