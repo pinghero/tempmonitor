@@ -24,7 +24,7 @@ def get_filtered_data(filters):
     print(measurements)
     data =[]
 
-    for measurement in measurments:
+    for measurement in measurements:
         timestamp = measurement.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Convert datetime to string
         data.append({
             'location': measurement.location,
