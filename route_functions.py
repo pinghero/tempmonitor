@@ -1,5 +1,6 @@
 from database.db_models import *
 from flask import Flask, render_template, request, url_for, redirect, g
+from dao import get_all_measurement_data, get_filtered_data
 import json
 import os
 import mariadb
@@ -8,33 +9,19 @@ import hashlib
 import os
 import uuid
 
-#def show_measurments(request):
-#    rows = measurments.query.all()
-#    rows_to_show = []
-#    for row in rows:
-#        row.date = row.created_on.date()
-#        row.time = row.created_on.time()
-#    return render_template('measurements.html', temps=rows)
+def show_measurements():
+    # Get all measurements
+    all_measurement_data = get_all_measurement_data()
 
+    # Convert measurements to labels and datasets for graph rendering
+    data_json = convert_graph_data(all_measurement_data)
+
+    return render_template('measurements.html', data_json=json.dumps(data_json), temps=all_measurement_data)
 def filter_data():
     filters = request.get_json()
-    print(filters)
-    return filters
-def get_all_measurement_data():
-    measurements_data = measurments.query.all()
+    filtered_data = get_filtered_data(filters)
 
-    data = []
-
-    for measurement in measurements_data:
-        timestamp = measurement.created_on.strftime("%Y-%m-%d %H:%M:%S")
-        data.append({
-            'location': measurement.location,
-            'temperature': float(measurement.temperature),
-            'humidity': float(measurement.humidity),
-            'timestamp': timestamp
-        })
-
-    return data
+    return filtered_data
 
 def add_measurment(request):
     try:

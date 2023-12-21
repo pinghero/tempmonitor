@@ -16,7 +16,6 @@ def get_all_measurement_data():
         })
 
     return data
-
 def get_filtered_data():
- # implement later
+
     return None
