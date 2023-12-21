@@ -18,7 +18,7 @@ def get_all_measurement_data():
     return data
 def get_filtered_data(filters):
     # Remove keys with None value
-    filter_dict = {k: v for k, v in original.items() if v is not None}
+    filter_dict = {k: v for k, v in filters.items() if v is not None}
 
     return measurments.query.filter_by(temperature >= filter_dict['tempFrom'])
 
