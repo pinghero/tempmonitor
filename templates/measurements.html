@@ -64,7 +64,8 @@
             <th onclick="sortTable(3)" class="sortable">Humidity<span class="sort-indicator"></span></th>
         </tr>
     </thead>
-    <tbody id="staticRows">
+    <tbody id="tableBody">
+        <!-- Static rows rendered by Flask -->
         {% for temp in temps %}
             <tr>
                 <td>{{ temp.timestamp }}</td>
@@ -74,7 +75,6 @@
             </tr>
         {% endfor %}
     </tbody>
-    <tbody id="dynamicRows"></tbody>
 </table>
 
 
