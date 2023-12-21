@@ -30,25 +30,45 @@ function applyFilters() {
     // Clear the table
     clearTable();
 
-    // Fetch filter values (customize this based on your filter input methods)
+    // Fetch filter values
+    var tempFromFilter = document.getElementById('tempFromFilter').value;
+    var tempToFilter = document.getElementById('tempToFilter').value;
+    var humidityFromFilter = document.getElementById('humidityFromFilter').value;
+    var humidityToFilter = document.getElementById('humidityToFilter').value;
+    var dateFromFilter = document.getElementById('dateFromFilter').value;
+    var dateToFilter = document.getElementById('dateToFilter').value;
     var locationFilter = document.getElementById('locationFilter').value;
-    var temperatureFilter = document.getElementById('temperatureFilter').value;
-    var humidityFilter = document.getElementById('humidityFilter').value;
 
     // Create an object to store filled filters
     var filterData = {};
 
     // Add filters to the object only if they are filled
+    if (tempFromFilter) {
+        filterData.tempFrom = tempFromFilter;
+    }
+
+    if (tempToFilter) {
+        filterData.tempTo = tempToFilter;
+    }
+
+    if (humidityFromFilter) {
+        filterData.humidityFrom = humidityFromFilter;
+    }
+
+    if (humidityToFilter) {
+        filterData.humidityTo = humidityToFilter;
+    }
+
+    if (dateFromFilter) {
+        filterData.dateFrom = dateFromFilter;
+    }
+
+    if (dateToFilter) {
+        filterData.dateTo = dateToFilter;
+    }
+
     if (locationFilter) {
         filterData.location = locationFilter;
-    }
-
-    if (temperatureFilter) {
-        filterData.temperature = temperatureFilter;
-    }
-
-    if (humidityFilter) {
-        filterData.humidity = humidityFilter;
     }
 
     // Send filter data to Flask backend only if at least one filter is filled
