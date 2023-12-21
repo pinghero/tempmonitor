@@ -22,7 +22,8 @@ function applyFilters() {
         }),
         success: function (data) {
             clearTable();  // Clear the table before updating
-            updateTable(data);
+            // Commenting out updateTable to confirm clearing
+            // updateTable(data);
         },
         error: function (xhr, status, error) {
             console.error("Error:", error);
