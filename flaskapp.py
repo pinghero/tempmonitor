@@ -32,7 +32,7 @@ def index():
 def update_data():
     return get_all_measurement_data()
 
-@app.route("/get_filtered_table_data", methods=['GET'])
+@app.route("/get_filtered_table_data", methods=['POST'])
 def update_filtered_data():
     filtered_data = request.get_json()
     return get_filtered_data(filtered_data)

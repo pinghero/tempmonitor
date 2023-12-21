@@ -52,7 +52,7 @@ function applyFilters() {
 
     // Send filter data to Flask backend only if at least one filter is filled
     if (Object.values(filterData).some(value => value !== '')) {
-        fetch('/apply_filters', {
+        fetch('/get_filtered_table_data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
