@@ -49,9 +49,9 @@ function updateTable(data) {
     var tableBody = document.querySelector('#myTable tbody');
     tableBody.innerHTML = '';
 
-    window.alert(data);
     data.forEach(function (temp) {
         var row = tableBody.insertRow();
+        window.alert(temp)
         row.insertCell(0).textContent = temp.timestamp;
         row.insertCell(1).textContent = temp.location;
         row.insertCell(2).textContent = temp.temperature;
