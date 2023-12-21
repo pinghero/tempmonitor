@@ -1,6 +1,11 @@
 function applyFilters() {
     var tempFrom = parseFloat(document.getElementById('tempFrom').value);
     var tempTo = parseFloat(document.getElementById('tempTo').value);
+    var humidityFrom = parseFloat(document.getElementById('humidityFrom').value);
+    var humidityTo = parseFloat(document.getElementById('humidityTo').value);
+    var dateFrom = parseFloat(document.getElementById('dateFrom').value);
+    var dateTo = parseFloat(document.getElementById('dateTo').value);
+    var location = parseFloat(document.getElementById('location').value);
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/update_data", true);
@@ -17,6 +22,11 @@ function applyFilters() {
     xhr.send(JSON.stringify({
         tempFrom: tempFrom,
         tempTo: tempTo,
+        humidityFrom: humidityFrom,
+        humidityTo: humidityTo,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        location: location
     }));
 }
 
