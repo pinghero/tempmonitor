@@ -32,21 +32,20 @@ function applyFilters() {
 }
 
 function clearTable() {
-    $('#myTable tbody').empty();  // Clear the table body
+    // Remove all rows except the first one (header)
+    $('#myTable tbody tr:not(:first)').remove();
 }
 
 function updateTable(data) {
     var tableBody = $('#myTable tbody');
 
+    // // Append new rows to the table
     // $.each(data, function (index, temp) {
     //     var row = $('<tr>');
-    //
-    //     // Assuming 'timestamp', 'location', 'temperature', and 'humidity' are keys in your data
     //     row.append($('<td>').text(temp.timestamp));
     //     row.append($('<td>').text(temp.location));
     //     row.append($('<td>').text(temp.temperature));
     //     row.append($('<td>').text(temp.humidity));
-    //
     //     tableBody.append(row);
     // });
 }
