@@ -49,12 +49,12 @@ function updateTable(data) {
     var tableBody = document.querySelector('#myTable tbody');
     tableBody.innerHTML = '';
 
-    data.forEach(function (temp) {
-        var row = tableBody.insertRow();
-        window.alert(temp)
-        row.insertCell(0).textContent = temp.timestamp;
-        row.insertCell(1).textContent = temp.location;
-        row.insertCell(2).textContent = temp.temperature;
-        row.insertCell(3).textContent = temp.humidity;
-    });
+    // data.forEach(function (temp) {
+    //     var row = tableBody.insertRow();
+    //     window.alert(temp)
+    //     row.insertCell(0).textContent = temp.timestamp;
+    //     row.insertCell(1).textContent = temp.location;
+    //     row.insertCell(2).textContent = temp.temperature;
+    //     row.insertCell(3).textContent = temp.humidity;
+    // });
 }
