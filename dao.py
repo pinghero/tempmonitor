@@ -44,6 +44,8 @@ def get_filtered_data(filters):
     if 'location' in filter_dict:
         query = query.filter(measurments.location == filter_dict['location'])
 
+    print(query)
+    print(measurments)
     measurements = query.all()
 
     data = []
