@@ -28,7 +28,7 @@ def get_filtered_data(filters):
         timestamp = measurement.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Convert datetime to string
         data.append({
             'timestamp': timestamp,
-            'location': location
+            'location': location,
             'temperature': float(measurement.temperature),
             'humidity': float(measurement.humidity),
         })
