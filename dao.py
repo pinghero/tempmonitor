@@ -1,5 +1,5 @@
 from database.db_models import measurments
-
+from flask import jsonify
 # Queries all measurement data in database and returns them as a list of dictionaries
 def get_all_measurement_data():
     measurements = measurments.query.all()
@@ -33,7 +33,6 @@ def get_filtered_data(filters):
             'timestamp': timestamp
         })
 
-    print(data)
-    return data
+    return jsonify(data)
 
 
