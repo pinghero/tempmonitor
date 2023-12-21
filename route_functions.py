@@ -17,7 +17,7 @@ def show_measurements():
     # Convert measurements to labels and datasets for graph rendering
     data_json = convert_graph_data(all_measurement_data)
 
-    return render_template('measurements.html', data_json=json.dumps(data_json), data=all_measurement_data)
+    return render_template('measurements.html', data_json=json.dumps(data_json), data_json=all_measurement_data)
 def filter_data():
     filters = request.get_json()
     filtered_data = get_filtered_data(filters)

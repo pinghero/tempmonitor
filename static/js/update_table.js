@@ -51,15 +51,18 @@ function updateTable(data) {
 }
 
 // Initial data load when the page is loaded
-$(document).ready(function () {;
+$(document).ready(function () {
+    // Load initial data when the page is loaded
+    updateTable(data_json);  // Assuming data_json is available from the server-side rendering
 });
 
-// Function to apply filters (you can implement this as needed)
+// Function to apply filters
 function applyFilters() {
     fetchDataAndUpdateTable();
 }
 
-// Function to reset filters (you can implement this as needed)
+// Function to reset filters
 function resetFilters() {
-    fetchDataAndUpdateTable();
+    // Implement reset filters logic as needed
+    fetchDataAndUpdateTable();  // Fetch data without filters when resetting
 }
