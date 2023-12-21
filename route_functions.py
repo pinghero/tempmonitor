@@ -19,6 +19,7 @@ import uuid
 def filter_data():
     filters = request.get_json()
     print(filters)
+    return filters
 def get_all_measurement_data():
     measurements_data = measurments.query.all()
 
