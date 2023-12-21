@@ -17,7 +17,7 @@ def get_all_measurement_data():
 
     return data
 def get_filtered_data(filters):
-    for key, value in filters.iteritems():
+    for key, value in filters.items():
         if value is None:
             del filters[key]
 
