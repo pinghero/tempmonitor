@@ -83,10 +83,10 @@
                     const cell3 = row.insertCell(2);
                     const cell4 = row.insertCell(3);
 
-                    cell1.textContent = item.location;
-                    cell2.textContent = item.temperature.toFixed(2);
-                    cell3.textContent = item.humidity.toFixed(2);
-                    cell4.textContent = item.timestamp;
+                    cell1.textContent = item.timestamp;
+                    cell2.textContent = item.location;
+                    cell3.textContent = item.temperature.toFixed(2);
+                    cell4.textContent = item.humidity.toFixed(2);
                 });
             })
             .catch(error => console.error('Error fetching data:', error));
