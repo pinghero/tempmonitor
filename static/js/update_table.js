@@ -53,7 +53,7 @@ function updateTable(data) {
 // Initial data load when the page is loaded
 $(document).ready(function () {
     // Load initial data when the page is loaded
-    updateTable(data_json);  // Assuming data_json is available from the server-side rendering
+    updateTable(JSON.parse('{{ json_data | safe }}'));
 });
 
 // Function to apply filters
