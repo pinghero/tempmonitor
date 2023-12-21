@@ -19,6 +19,7 @@ def get_all_measurement_data():
 from flask import jsonify
 
 def get_filtered_data(filters):
+    filter_dict = {k: v for k, v in filters.items() if v is not None}
     query = measurments.query
 
     if not filter_dict['tempFrom'].isEmpty:
