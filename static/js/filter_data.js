@@ -32,8 +32,7 @@ function applyFilters() {
 }
 
 function clearTable() {
-    // Remove all rows except the first one (header)
-    $('#myTable tbody tr:not(:first)').remove();
+    $('#myTable tbody').empty();
 }
 
 function updateTable(data) {
