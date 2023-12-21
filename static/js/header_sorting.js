@@ -31,10 +31,16 @@ function sortTable(n) {
         var aValue = a.getElementsByTagName("td")[n].textContent.trim();
         var bValue = b.getElementsByTagName("td")[n].textContent.trim();
 
+        // Convert temperature values to numbers for proper sorting
+        if (n === 1 || n === 2) { // Assuming temperature is the second column (index 1) and humidity is the third column (index 2)
+            aValue = parseFloat(aValue);
+            bValue = parseFloat(bValue);
+        }
+
         if (sortDirection === 'asc') {
-            return aValue.localeCompare(bValue);
+            return aValue - bValue;
         } else {
-            return bValue.localeCompare(aValue);
+            return bValue - aValue;
         }
     });
 
