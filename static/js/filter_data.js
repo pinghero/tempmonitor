@@ -31,48 +31,27 @@ function applyFilters() {
     clearTable();
 
     // Fetch filter values
-    var tempFromFilter = document.getElementById('tempFromFilter').value;
-    var tempToFilter = document.getElementById('tempToFilter').value;
-    var humidityFromFilter = document.getElementById('humidityFromFilter').value;
-    var humidityToFilter = document.getElementById('humidityToFilter').value;
-    var dateFromFilter = document.getElementById('dateFromFilter').value;
-    var dateToFilter = document.getElementById('dateToFilter').value;
-    var locationFilter = document.getElementById('locationFilter').value;
+    var tempFrom = document.getElementById('tempFrom').value;
+    var tempTo = document.getElementById('tempTo').value;
+    var humidityFrom = document.getElementById('humidityFrom').value;
+    var humidityTo = document.getElementById('humidityTo').value;
+    var dateFrom = document.getElementById('dateFrom').value;
+    var dateTo = document.getElementById('dateTo').value;
+    var location = document.getElementById('location').value;
 
     // Create an object to store filled filters
-    var filterData = {};
-
-    // Add filters to the object only if they are filled
-    if (tempFromFilter) {
-        filterData.tempFrom = tempFromFilter;
-    }
-
-    if (tempToFilter) {
-        filterData.tempTo = tempToFilter;
-    }
-
-    if (humidityFromFilter) {
-        filterData.humidityFrom = humidityFromFilter;
-    }
-
-    if (humidityToFilter) {
-        filterData.humidityTo = humidityToFilter;
-    }
-
-    if (dateFromFilter) {
-        filterData.dateFrom = dateFromFilter;
-    }
-
-    if (dateToFilter) {
-        filterData.dateTo = dateToFilter;
-    }
-
-    if (locationFilter) {
-        filterData.location = locationFilter;
-    }
+    var filterData = {
+        tempFrom,
+        tempTo,
+        humidityFrom,
+        humidityTo,
+        dateFrom,
+        dateTo,
+        location
+    };
 
     // Send filter data to Flask backend only if at least one filter is filled
-    if (Object.keys(filterData).length > 0) {
+    if (Object.values(filterData).some(value => value !== '')) {
         fetch('/apply_filters', {
             method: 'POST',
             headers: {
