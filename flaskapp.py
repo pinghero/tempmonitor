@@ -6,7 +6,7 @@ from verify_password import verify_password
 from route_functions import *
 from database.db_models import measurments, users
 from flask_httpauth import HTTPBasicAuth
-from dao import get_all_measurement_data()
+from dao import get_all_measurement_data
 import random
 
 app = Flask(__name__,template_folder='/home/pinghero/tempmonitor/templates/')
