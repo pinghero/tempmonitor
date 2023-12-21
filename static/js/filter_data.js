@@ -21,6 +21,7 @@ function applyFilters() {
             location: location
         }),
         success: function (data) {
+            clearTable();  // Clear the table before updating
             updateTable(data);
         },
         error: function (xhr, status, error) {
@@ -29,31 +30,22 @@ function applyFilters() {
     });
 }
 
-function resetFilters() {
-    $.ajax({
-        url: "/get_original_data",
-        type: "GET",
-        success: function (data) {
-            updateTable(data);
-        },
-        error: function (xhr, status, error) {
-            console.error("Error:", error);
-        }
-    });
+function clearTable() {
+    $('#myTable tbody').empty();  // Clear the table body
 }
 
 function updateTable(data) {
     var tableBody = $('#myTable tbody');
-    tableBody.empty();  // Clear the table body
 
     $.each(data, function (index, temp) {
-        var row = tableBody[0].insertRow();  // Access the raw DOM element using [0]
+        var row = $('<tr>');
 
         // Assuming 'timestamp', 'location', 'temperature', and 'humidity' are keys in your data
-        row.insertCell(0).textContent = temp.timestamp;
-        row.insertCell(1).textContent = temp.location;
-        row.insertCell(2).textContent = temp.temperature;
-        row.insertCell(3).textContent = temp.humidity;
+        row.append($('<td>').text(temp.timestamp));
+        row.append($('<td>').text(temp.location));
+        row.append($('<td>').text(temp.temperature));
+        row.append($('<td>').text(temp.humidity));
+
+        tableBody.append(row);
     });
 }
-
