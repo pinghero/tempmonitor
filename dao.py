@@ -9,10 +9,10 @@ def get_all_measurement_data():
         timestamp = measurement.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Convert datetime to string
 
         data.append({
+            'timestamp': timestamp,
             'location': measurement.location,
             'temperature': float(measurement.temperature),
-            'humidity': float(measurement.humidity),
-            'timestamp': timestamp
+            'humidity': float(measurement.humidity)
         })
 
     return data
