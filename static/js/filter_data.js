@@ -35,25 +35,36 @@ function applyFilters() {
     var temperatureFilter = document.getElementById('temperatureFilter').value;
     var humidityFilter = document.getElementById('humidityFilter').value;
 
-    // Prepare filter data to send to the Flask backend
-    var filterData = {
-        location: locationFilter,
-        temperature: temperatureFilter,
-        humidity: humidityFilter
-    };
+    // Create an object to store filled filters
+    var filterData = {};
 
-    // Send filter data to Flask backend
-    fetch('/apply_filters', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(filterData),
-    })
-    .then(response => response.json())
-    .then(newData => {
-        // Update the table with the new data
-        updateTable(newData);
-    })
-    .catch(error => console.error('Error applying filters:', error));
+    // Add filters to the object only if they are filled
+    if (locationFilter) {
+        filterData.location = locationFilter;
+    }
+
+    if (temperatureFilter) {
+        filterData.temperature = temperatureFilter;
+    }
+
+    if (humidityFilter) {
+        filterData.humidity = humidityFilter;
+    }
+
+    // Send filter data to Flask backend only if at least one filter is filled
+    if (Object.keys(filterData).length > 0) {
+        fetch('/apply_filters', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(filterData),
+        })
+        .then(response => response.json())
+        .then(newData => {
+            // Update the table with the new data
+            updateTable(newData);
+        })
+        .catch(error => console.error('Error applying filters:', error));
+    }
 }
