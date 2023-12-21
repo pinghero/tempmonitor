@@ -37,15 +37,15 @@ function clearTable() {
 function updateTable(data) {
     var tableBody = $('#myTable tbody');
 
-    $.each(data, function (index, temp) {
-        var row = $('<tr>');
-
-        // Assuming 'timestamp', 'location', 'temperature', and 'humidity' are keys in your data
-        row.append($('<td>').text(temp.timestamp));
-        row.append($('<td>').text(temp.location));
-        row.append($('<td>').text(temp.temperature));
-        row.append($('<td>').text(temp.humidity));
-
-        tableBody.append(row);
-    });
+    // $.each(data, function (index, temp) {
+    //     var row = $('<tr>');
+    //
+    //     // Assuming 'timestamp', 'location', 'temperature', and 'humidity' are keys in your data
+    //     row.append($('<td>').text(temp.timestamp));
+    //     row.append($('<td>').text(temp.location));
+    //     row.append($('<td>').text(temp.temperature));
+    //     row.append($('<td>').text(temp.humidity));
+    //
+    //     tableBody.append(row);
+    // });
 }
