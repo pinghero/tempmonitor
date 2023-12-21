@@ -29,7 +29,8 @@ def index():
 
 @app.route("/update_data", methods=['POST'])
 def update_data():
-    return filter_data()
+    return jsonify(data)
+    # return filter_data()
 @app.route("/add", methods=['POST'])
 @auth.login_required
 def add():
