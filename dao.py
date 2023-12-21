@@ -16,13 +16,37 @@ def get_all_measurement_data():
         })
 
     return data
+from flask import jsonify
+
 def get_filtered_data(filters):
-    # Remove keys with None value
     filter_dict = {k: v for k, v in filters.items() if v is not None}
 
-    measurements = measurments.query.filter(measurments.temperature >= filter_dict['tempFrom']).all()
-    print(measurements)
-    data =[]
+    query = measurments.query
+
+    if 'tempFrom' in filter_dict:
+        query = query.filter(measurments.temperature >= filter_dict['tempFrom'])
+
+    if 'tempTo' in filter_dict:
+        query = query.filter(measurments.temperature <= filter_dict['tempTo'])
+
+    if 'humidityFrom' in filter_dict:
+        query = query.filter(measurments.humidity >= filter_dict['humidityFrom'])
+
+    if 'humidityTo' in filter_dict:
+        query = query.filter(measurments.humidity <= filter_dict['humidityTo'])
+
+    if 'dateFrom' in filter_dict:
+        query = query.filter(measurments.created_on >= filter_dict['dateFrom'])
+
+    if 'dateTo' in filter_dict:
+        query = query.filter(measurments.created_on <= filter_dict['dateTo'])
+
+    if 'location' in filter_dict:
+        query = query.filter(measurments.location == filter_dict['location'])
+
+    measurements = query.all()
+
+    data = []
 
     for measurement in measurements:
         timestamp = measurement.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Convert datetime to string
@@ -34,5 +58,6 @@ def get_filtered_data(filters):
         })
 
     return jsonify(data)
+
 
 
