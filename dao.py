@@ -33,6 +33,7 @@ def get_filtered_data(filters):
             'timestamp': timestamp
         })
 
+    print(data)
     return data
 
 
