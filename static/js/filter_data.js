@@ -5,25 +5,34 @@ function clearTable() {
     tbody.innerHTML = '';
 }
 
-// Function to update the table with new data
 function updateTable(data) {
     var table = document.getElementById("myTable");
     var tbody = table.querySelector('tbody');
 
-    // Loop through the data and add rows to the table
-    data.forEach(item => {
-        var row = tbody.insertRow();
-        var cell1 = row.insertCell(0);
-        var cell2 = row.insertCell(1);
-        var cell3 = row.insertCell(2);
-        var cell4 = row.insertCell(3);
+    // Check if there is new data
+    if (data && data.length > 0) {
+        // Clear existing rows from the table
+        tbody.innerHTML = '';
 
-        cell1.textContent = item.timestamp;
-        cell2.textContent = item.location;
-        cell3.textContent = item.temperature.toFixed(2);
-        cell4.textContent = item.humidity.toFixed(2);
-    });
+        // Loop through the data and add rows to the table
+        data.forEach(item => {
+            var row = tbody.insertRow();
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            var cell4 = row.insertCell(3);
+
+            cell1.textContent = item.timestamp;
+            cell2.textContent = item.location;
+            cell3.textContent = item.temperature.toFixed(2);
+            cell4.textContent = item.humidity.toFixed(2);
+        });
+    } else {
+        // If there is no new data, you can handle it based on your preference
+        console.log("No new data to update the table");
+    }
 }
+
 
 // Function to handle filter changes
 function applyFilters() {
