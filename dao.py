@@ -21,9 +21,11 @@ def get_filtered_data(filters):
     filter_dict = {k: v for k, v in filters.items() if v is not None}
 
     measurements = measurments.query.filter(measurments.temperature >= filter_dict['tempFrom'])
+    print(measurements)
     data =[]
 
     for measurement in measurments:
+        timestamp = measurement.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Convert datetime to string
         data.append({
             'location': measurement.location,
             'temperature': float(measurement.temperature),
