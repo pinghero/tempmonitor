@@ -27,10 +27,10 @@ def get_filtered_data(filters):
     for measurement in measurements:
         timestamp = measurement.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Convert datetime to string
         data.append({
-            'location': measurement.location,
+            'timestamp': timestamp,
+            'location': location
             'temperature': float(measurement.temperature),
             'humidity': float(measurement.humidity),
-            'timestamp': timestamp
         })
 
     return jsonify(data)
