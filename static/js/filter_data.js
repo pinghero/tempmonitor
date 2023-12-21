@@ -21,9 +21,8 @@ function applyFilters() {
             location: location
         }),
         success: function (data) {
-            clearTable();  // Clear the table before updating
-            // Commenting out updateTable to confirm clearing
-            // updateTable(data);
+            clearTable();  // Clear the dynamic tbody
+            updateTable(data);
         },
         error: function (xhr, status, error) {
             console.error("Error:", error);
@@ -32,19 +31,19 @@ function applyFilters() {
 }
 
 function clearTable() {
-    $('#myTable tbody').empty();
+    $('#dynamicRows').empty();
 }
 
 function updateTable(data) {
-    var tableBody = $('#myTable tbody');
+    var tableBody = $('#dynamicRows');
 
-    // // Append new rows to the table
-    // $.each(data, function (index, temp) {
-    //     var row = $('<tr>');
-    //     row.append($('<td>').text(temp.timestamp));
-    //     row.append($('<td>').text(temp.location));
-    //     row.append($('<td>').text(temp.temperature));
-    //     row.append($('<td>').text(temp.humidity));
-    //     tableBody.append(row);
-    // });
+    // Append new rows to the dynamic tbody
+    $.each(data, function (index, temp) {
+        var row = $('<tr>');
+        row.append($('<td>').text(temp.timestamp));
+        row.append($('<td>').text(temp.location));
+        row.append($('<td>').text(temp.temperature));
+        row.append($('<td>').text(temp.humidity));
+        tableBody.append(row);
+    });
 }

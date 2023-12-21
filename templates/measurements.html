@@ -55,22 +55,28 @@
     <button onclick="applyFilters()">Apply Filters</button>
     <button onclick="resetFilters()">Reset Filters</button>
 </div>
-    <table class="styled-table" id="myTable">
+<table class="styled-table" id="myTable">
+    <thead>
         <tr>
             <th onclick="sortTable(0)" class="sortable">Timestamp<span class="sort-indicator"></span></th>
             <th onclick="sortTable(1)" class="sortable">Location<span class="sort-indicator"></span></th>
             <th onclick="sortTable(2)" class="sortable">Temperature<span class="sort-indicator"></span></th>
             <th onclick="sortTable(3)" class="sortable">Humidity<span class="sort-indicator"></span></th>
         </tr>
+    </thead>
+    <tbody id="staticRows">
         {% for temp in temps %}
-        <tr>
-          <td>{{ temp.timestamp }}</td>
-          <td>{{ temp.location }}</td>
-          <td>{{ temp.temperature }}</td>
-          <td>{{ temp.humidity }}</td>
-        </tr>
+            <tr>
+                <td>{{ temp.timestamp }}</td>
+                <td>{{ temp.location }}</td>
+                <td>{{ temp.temperature }}</td>
+                <td>{{ temp.humidity }}</td>
+            </tr>
         {% endfor %}
-    </table>
+    </tbody>
+    <tbody id="dynamicRows"></tbody>
+</table>
+
 
 </body>
 </html> 
