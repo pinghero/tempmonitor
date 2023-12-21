@@ -31,19 +31,22 @@ function applyFilters() {
 }
 
 function clearTable() {
-    $('#myTable tbody tr:gt(0)').remove();  // Remove all rows except the header row
+    var tableBody = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+    tableBody.innerHTML = '';  // Clear all content inside the tbody
 }
 
 function updateTable(data) {
-    var tableBody = $('#myTable tbody');
+    var tableBody = document.getElementById('myTable').getElementsByTagName('tbody')[0];
 
     // Append new rows to the tbody
-    $.each(data, function (index, temp) {
-        var row = $('<tr>');
-        row.append($('<td>').text(temp.timestamp));
-        row.append($('<td>').text(temp.location));
-        row.append($('<td>').text(temp.temperature));
-        row.append($('<td>').text(temp.humidity));
-        tableBody.append(row);
+    data.forEach(function (temp) {
+        var row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${temp.timestamp}</td>
+            <td>${temp.location}</td>
+            <td>${temp.temperature}</td>
+            <td>${temp.humidity}</td>
+        `;
+        tableBody.appendChild(row);
     });
 }
