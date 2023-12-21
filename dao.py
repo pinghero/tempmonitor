@@ -16,6 +16,11 @@ def get_all_measurement_data():
         })
 
     return data
-def get_filtered_data():
+def get_filtered_data(filters):
+    for key, value in filters.iteritems():
+        if value is None:
+            del filters[key]
 
-    return None
+    return measurments.query.filter_by(temperature >= filters['tempFrom'])
+
+
