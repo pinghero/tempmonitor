@@ -21,7 +21,7 @@ function applyFilters() {
             location: location
         }),
         success: function (data) {
-            clearTable();  // Clear the dynamic tbody
+            clearTable();  // Clear the tbody
             updateTable(data);
         },
         error: function (xhr, status, error) {
@@ -31,13 +31,13 @@ function applyFilters() {
 }
 
 function clearTable() {
-    $('#dynamicRows').empty();
+    $('#myTable tbody tr:gt(0)').remove();  // Remove all rows except the header row
 }
 
 function updateTable(data) {
-    var tableBody = $('#dynamicRows');
+    var tableBody = $('#myTable tbody');
 
-    // Append new rows to the dynamic tbody
+    // Append new rows to the tbody
     $.each(data, function (index, temp) {
         var row = $('<tr>');
         row.append($('<td>').text(temp.timestamp));
