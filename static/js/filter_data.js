@@ -48,6 +48,7 @@ function applyFilters() {
         location
     };
 
+    if (Object.values(filterData).some(value => value !== '')) {
         fetch('/get_filtered_table_data', {
             method: 'POST',
             headers: {
@@ -62,4 +63,4 @@ function applyFilters() {
         })
         .catch(error => console.error('Error applying filters:', error));
     }
-
+}

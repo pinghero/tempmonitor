@@ -22,6 +22,7 @@ def get_filtered_data(filters):
     filter_dict = {k: v for k, v in filters.items() if v is not None}
     query = measurments.query
 
+    print(filter_dict)
     if not len(filter_dict['tempFrom']) == 0:
         query = query.filter(measurments.temperature >= filter_dict['tempFrom'])
 
@@ -43,9 +44,7 @@ def get_filtered_data(filters):
     if not len(filter_dict['location']) == 0:
         query = query.filter(measurments.location == filter_dict['location'])
 
-    print(query)
     measurements = query.all()
-    print(measurements)
 
     data = []
 
