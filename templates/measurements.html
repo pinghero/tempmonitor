@@ -11,6 +11,7 @@
         <script src="static/js/sort_buttons.js"></script>
         <script src="static/js/header_sorting.js"></script>
         <script src="static/js/filter_data.js"></script>
+        <script src="static/js/update_table.js"></script>
     </head>
     <h1>Last 10 days measured</h1>
     <hr>
@@ -65,15 +66,6 @@
         </tr>
     </thead>
     <tbody id="tableBody">
-        <!-- Static rows rendered by Flask -->
-        {% for temp in temps %}
-            <tr>
-                <td>{{ temp.timestamp }}</td>
-                <td>{{ temp.location }}</td>
-                <td>{{ temp.temperature }}</td>
-                <td>{{ temp.humidity }}</td>
-            </tr>
-        {% endfor %}
     </tbody>
 </table>
 
