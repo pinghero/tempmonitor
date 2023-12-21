@@ -31,6 +31,12 @@ def index():
 @app.route("/get_table_data", methods=['GET'])
 def update_data():
     return get_all_measurement_data()
+
+@app.route("/get_filtered_table_data", methods=['GET'])
+def update_filtered_data():
+    filtered_data = request.get_json()
+    return get_filtered_data(filtered_data)
+
 @app.route("/add", methods=['POST'])
 @auth.login_required
 def add():
