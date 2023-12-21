@@ -1,5 +1,5 @@
 from database.db_models import *
-from flask import Flask, render_template, request, url_for, redirect, g
+from flask import Flask, render_template, request, url_for, redirect, g, jsonify
 from dao import get_all_measurement_data, get_filtered_data
 from convert_graph_data import convert_graph_data
 import json
