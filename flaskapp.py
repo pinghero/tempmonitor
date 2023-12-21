@@ -28,7 +28,7 @@ def password_check(username, password):
 def index():
     return show_measurements()
 
-@app.route("/", methods=['GET'])
+@app.route("/update_data", methods=['GET'])
 def update_data():
     return filter_data()
 @app.route("/add", methods=['POST'])
