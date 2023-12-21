@@ -19,29 +19,27 @@ def get_all_measurement_data():
 from flask import jsonify
 
 def get_filtered_data(filters):
-    filter_dict = {k: v for k, v in filters.items() if v is not None}
-    print(filter_dict)
     query = measurments.query
 
-    if 'tempFrom' in filter_dict:
+    if not filter_dict['tempFrom'].isEmpty:
         query = query.filter(measurments.temperature >= filter_dict['tempFrom'])
 
-    if 'tempTo' in filter_dict:
+    if not filter_dict['tempTo'].isEmpty:
         query = query.filter(measurments.temperature <= filter_dict['tempTo'])
 
-    if 'humidityFrom' in filter_dict:
+    if not filter_dict['humidityFrom'].isEmpty:
         query = query.filter(measurments.humidity >= filter_dict['humidityFrom'])
 
-    if 'humidityTo' in filter_dict:
+    if not filter_dict['humidityTo'].isEmpty:
         query = query.filter(measurments.humidity <= filter_dict['humidityTo'])
 
-    if 'dateFrom' in filter_dict:
+    if not filter_dict['dateFrom'].isEmpty:
         query = query.filter(measurments.created_on >= filter_dict['dateFrom'])
 
-    if 'dateTo' in filter_dict:
+    if not filter_dict['dateTo'].isEmpty:
         query = query.filter(measurments.created_on <= filter_dict['dateTo'])
 
-    if 'location' in filter_dict:
+    if not filter_dict['location'].isEmpty:
         query = query.filter(measurments.location == filter_dict['location'])
 
     print(query)
