@@ -69,6 +69,28 @@
     </tbody>
 </table>
 
+    <script>
+        // JavaScript code to fetch data and populate the table
+        fetch('/get_table_data')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#myTable tbody');
+
+                data.forEach(item => {
+                    const row = tableBody.insertRow();
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+                    const cell4 = row.insertCell(3);
+
+                    cell1.textContent = item.location;
+                    cell2.textContent = item.temperature.toFixed(2);
+                    cell3.textContent = item.humidity.toFixed(2);
+                    cell4.textContent = item.timestamp;
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
 
 </body>
 </html> 
