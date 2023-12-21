@@ -49,6 +49,7 @@ function updateTable(data) {
     var tableBody = document.querySelector('#myTable tbody');
     tableBody.innerHTML = '';
 
+    window.alert(data);
     data.forEach(function (temp) {
         var row = tableBody.insertRow();
         row.insertCell(0).textContent = temp.timestamp;
