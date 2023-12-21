@@ -20,7 +20,7 @@ from flask import jsonify
 
 def get_filtered_data(filters):
     filter_dict = {k: v for k, v in filters.items() if v is not None}
-
+    print(filter_dict)
     query = measurments.query
 
     if 'tempFrom' in filter_dict:
@@ -45,8 +45,8 @@ def get_filtered_data(filters):
         query = query.filter(measurments.location == filter_dict['location'])
 
     print(query)
-    print(measurments)
     measurements = query.all()
+    print(measurments)
 
     data = []
 
