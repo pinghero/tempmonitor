@@ -45,7 +45,7 @@ def get_filtered_data(filters):
 
     print(query)
     measurements = query.all()
-    print(measurments)
+    print(measurements)
 
     data = []
 
