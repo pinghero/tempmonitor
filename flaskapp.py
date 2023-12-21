@@ -6,6 +6,7 @@ from verify_password import verify_password
 from route_functions import *
 from database.db_models import measurments, users
 from flask_httpauth import HTTPBasicAuth
+from dao import get_all_measurement_data()
 import random
 
 app = Flask(__name__,template_folder='/home/pinghero/tempmonitor/templates/')
@@ -27,10 +28,9 @@ def password_check(username, password):
 def index():
     return show_measurements()
 
-@app.route("/update_data", methods=['POST'])
+@app.route("/get_table_data", methods=['POST'])
 def update_data():
-    return jsonify(data)
-    # return filter_data()
+    return get_all_measurement_data()
 @app.route("/add", methods=['POST'])
 @auth.login_required
 def add():

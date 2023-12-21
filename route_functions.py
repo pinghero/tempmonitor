@@ -11,15 +11,13 @@ import os
 import uuid
 
 def show_measurements():
-        # Get all measurements
-        all_measurement_data = get_all_measurement_data()
+    # Get all measurements
+    all_measurement_data = get_all_measurement_data()
 
-        # Convert measurements to labels and datasets for graph rendering
-        data_json = convert_graph_data(all_measurement_data)
+    # Convert measurements to labels and datasets for graph rendering
+    data_json = convert_graph_data(all_measurement_data)
 
-        json_data = json.dumps(data_json)  # Serialize data for JavaScript
-
-        return render_template('measurements.html', json_data=json_data, data=all_measurement_data)
+    return render_template('measurements.html', data_json=json.dumps(data_json), data=all_measurement_data)
 def filter_data():
     filters = request.get_json()
     filtered_data = get_filtered_data(filters)
