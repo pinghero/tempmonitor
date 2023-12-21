@@ -22,25 +22,25 @@ def get_filtered_data(filters):
     filter_dict = {k: v for k, v in filters.items() if v is not None}
     query = measurments.query
 
-    if not filter_dict['tempFrom'].isEmpty:
+    if not filter_dict['tempFrom'].isEmpty():
         query = query.filter(measurments.temperature >= filter_dict['tempFrom'])
 
-    if not filter_dict['tempTo'].isEmpty:
+    if not filter_dict['tempTo'].isEmpty():
         query = query.filter(measurments.temperature <= filter_dict['tempTo'])
 
-    if not filter_dict['humidityFrom'].isEmpty:
+    if not filter_dict['humidityFrom'].isEmpty():
         query = query.filter(measurments.humidity >= filter_dict['humidityFrom'])
 
-    if not filter_dict['humidityTo'].isEmpty:
+    if not filter_dict['humidityTo'].isEmpty():
         query = query.filter(measurments.humidity <= filter_dict['humidityTo'])
 
-    if not filter_dict['dateFrom'].isEmpty:
+    if not filter_dict['dateFrom'].isEmpty():
         query = query.filter(measurments.created_on >= filter_dict['dateFrom'])
 
-    if not filter_dict['dateTo'].isEmpty:
+    if not filter_dict['dateTo'].isEmpty():
         query = query.filter(measurments.created_on <= filter_dict['dateTo'])
 
-    if not filter_dict['location'].isEmpty:
+    if not filter_dict['location'].isEmpty():
         query = query.filter(measurments.location == filter_dict['location'])
 
     print(query)
