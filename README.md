@@ -140,4 +140,75 @@ and check to make sure that only the key(s) you wanted were added.
 
 Das bedeutet, dass wir unseren Schlüssel erfolgreich kopiert haben und uns nun mit ihm anmelden können.
 
-### 2.1.2 SSH-Schlüssel-Generierung
+### 2.1.3 Deaktivierung der passwortbasierten Authentifizierung
+Although we configured a SSH-Key for out new user,
+Obwohl wir einen SSH-Schlüssel für unseren neuen Benutzer konfiguriert haben,
+ist eine passwortbasierte Authentifizierung weiterhin möglich. Um sie zu deaktivieren, müssen wir uns zunächst mit unserem Server verbinden und die SSH-Konfigurationsdatei bearbeiten.
+
+Um die SSH-Konfigurationsdatei zu öffnen:
+```Console
+<username>@ubuntu:~$ vim /etc/ssh/sshd_config
+```
+Dann müssen wir die Option ```PasswordAuthentication``` auf ```no``` ändern.  
+Da wir nun einen neuen Benutzer haben, der sich mit dem Server verbinden kann und sudo-Rechte hat, können wir den Root-Authentifizierung komplett deaktivieren, um unseren Server weiter vor möglichen Angriffen zu schützen. Zu diesem Zweck ändern wir ```PermitRootLogin``` auch auf ```no```.   
+Damit die Änderungen durchgeführt werden können, starten wir den SSH-Dienst neu mit ```sudo systemctl restart ssh```.  
+Jetzt können wir uns nur noch mit unserem Benutzer und dem generierten SSH-Schlüssel verbinden.
+
+### 2.2 Domain-Konfiguration
+Jetzt kann unser Server von einem Browser über seine IP-Adresse erreicht werden. Wir können das ändern, indem wir die IP-Adresse mit einem Domänennamen verknüpfen. Dazu müssen wir die DNS-Einträge ändern. Dies ist je nach Anbieter unterschiedlich, aber in der Regel hat der Anbieter eine Webseite mit DNS-Einstellungen. Dort müssen wir die A-Einträge so ändern, dass sie auf unsere Server-IP-Adresse verweisen.
+
+### 2.3 Reverse-Proxy-Konfiguration
+Um unseren Server dem Internet auszusetzen und später die verschiedenen HTTP-Anfragen, die wir erhalten, weiterzuleiten, verwenden wir eine Reverse-Proxy-Lösung.  
+
+In meinem Fall habe ich mich für NGNIX entschieden, einen beliebten Webserver und Reverse Proxy Lösung.
+
+### 2.3.1 NGNIX Installation
+Als erstes müssen wir NGNIX auf unserem Server installieren:    
+```Console
+pinghero@ubuntu:~$ sudo apt install nginx
+```
+
+So überprüfen Sie, ob NGNIX installiert ist und läuft:  
+```Console
+pinghero@ubuntu:~$ sudo systemctl status nginx
+```
+Ausgabe:
+```Console
+Output
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+     Active: active (running) since Mon 2022-08-29 06:52:46 UTC; 39min ago
+       Docs: man:nginx(8)
+   Main PID: 9919 (nginx)
+      Tasks: 2 (limit: 2327)
+     Memory: 2.9M
+        CPU: 50ms
+     CGroup: /system.slice/nginx.service
+             ├─9919 "nginx: master process /usr/sbin/nginx -g daemon on; master_process on;"
+             └─9920 "nginx: worker process
+```
+
+### 2.3.2 NGNIX Konfiguration and SSL-Zertifikat
+Wir müssen einen benutzerdefinierten Serverblock mit unserer Domain und dem Proxy für den Anwendungsserver hinzufügen.  
+Damit wird NGNIX im Wesentlichen mitgeteilt, welche Ports es abhören und welche Webseiten es bei einer Anfrage bereitstellen soll.  
+
+Zu diesem Zweck erstellen wir eine neue Konfigurationsdatei für NGNIX:
+```Console
+sudo vim /etc/nginx/sites-available/tempmonitor
+```
+
+Dann fügen wir Folgendes in die Datei ein:  
+```Console
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name pinghero.online www.pinghero.online;
+        
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        include proxy_params;
+    }
+}
+```
+Dadurch wird NGNIX angewiesen, Port 80 (HTTP-Port) abzuhören und an localhost weiterzuleiten. Da das HTTP-Protokoll unverschlüsselt ist, müssen wir ein SSL-Zertifikat hinzufügen, um die HTTPS-Kommunikation zu ermöglichen.
