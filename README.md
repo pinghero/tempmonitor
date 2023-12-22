@@ -188,13 +188,13 @@ Output
              └─9920 "nginx: worker process
 ```
 
-### 2.3.2 NGNIX Konfiguration and SSL-Zertifikat
+### 2.3.2 NGNIX Konfiguration
 Wir müssen einen benutzerdefinierten Serverblock mit unserer Domain und dem Proxy für den Anwendungsserver hinzufügen.  
 Damit wird NGNIX im Wesentlichen mitgeteilt, welche Ports es abhören und welche Webseiten es bei einer Anfrage bereitstellen soll.  
 
 Zu diesem Zweck erstellen wir eine neue Konfigurationsdatei für NGNIX:
 ```Console
-sudo vim /etc/nginx/sites-available/tempmonitor
+pinghero@ubuntu:~$ sudo vim /etc/nginx/sites-available/tempmonitor
 ```
 
 Dann fügen wir Folgendes in die Datei ein:  
@@ -211,4 +211,49 @@ server {
     }
 }
 ```
-Dadurch wird NGNIX angewiesen, Port 80 (HTTP-Port) abzuhören und an localhost weiterzuleiten. Da das HTTP-Protokoll unverschlüsselt ist, müssen wir ein SSL-Zertifikat hinzufügen, um die HTTPS-Kommunikation zu ermöglichen.
+Dadurch wird NGNIX angewiesen, Port 80 (HTTP-Port) abzuhören und an localhost weiterzuleiten. Da das HTTP-Protokoll unverschlüsselt ist, müssen wir ein SSL-Zertifikat hinzufügen, um die HTTPS-Kommunikation zu ermöglichen. Dies wird später erklärt unter HIERHIER.  
+
+Wir sollten NGNIX auch anweisen, die Anfragen an unsere Anwendung statt an localhost weiterzuleiten. Dies wird auch später unter HIERHIER erklärt.
+
+Schließlich müssen wir eine Verknüpfung zwischen der Konfigurationsdatei und der Datei ```sites-enabled``` herstellen, die NGINX beim Start liest:
+```Console
+pinghero@ubuntu:~$ sudo ln -s /etc/nginx/sites-available/tempmonitor /etc/nginx/sites-enabled/
+```
+Und den NGINX-Dienst neu starten:
+```Console
+pinghero@ubuntu:~$ sudo systemctl restart nginx
+```
+
+### 2.4 Flask und Gunicorn Anwendungsserver
+Unser Backend wird mit Python und insbesondere mit dem Flask-Framework verwaltet. Um dies zu erreichen, müssen wir Flask auf unserem Server installieren, um eine Anwendung zu erstellen und Gunicorn, einen Python WSGI HTTP Server, zu konfigurieren, der unsere Anwendung bedient.
+
+### 2.4.1 Erstellung einer virtuellen Umgebung
+Da Python und PIP bereits installiert sind, müssen wir eine virtuelle Umgebung erstellen, in der wir alle notwendigen Pakete für unsere Anwendung, einschließlich Flask, installieren werden.  
+
+Zunächst müssen wir das Modul ```python-venv``` installieren. Um dies zu tun:
+```Console
+pinghero@ubuntu:~$ sudo apt install python3-venv
+```
+Nachdem die Installation abgeschlossen ist, erstellen wir ein Verzeichnis für unsere Flask-Anwendung:
+```Console
+pinghero@ubuntu:~$ mkdir ~/tempmonitor
+pinghero@ubuntu:~$ cd ~/tempmonitor
+```
+
+Innerhalb des neu erstellten Verzeichnisses erstellen wir dann eine virtuelle Umgebung mit der Name ```venv```:
+```Console
+pinghero@ubuntu:~$ python3 -m venv venv
+```
+
+Und aktivieren sie mit:
+```Console
+pinghero@ubuntu:~$ source myprojectenv/bin/activate
+```
+
+Ausgabe:
+```Console
+(venv) pinghero@ubuntu:~$
+```
+Das ```venv``` am Anfang bestätigt, dass wir uns in einer virtuellen Umgebung befinden und wir können mit der Installation aller notwendigen Pakete beginnen.
+
+### 2.4.2 
