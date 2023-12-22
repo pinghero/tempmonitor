@@ -1,15 +1,13 @@
 from collections import defaultdict
-from flask import render_template
-from get_all_measurment_data import get_all_measurement_data
-import json
 
-def getRandomColor():
+# Help function to generate random color for different location representation
+def get_random_color():
     import random
     return "#{:06x}".format(random.randint(0, 0xFFFFFF))
-def show_measurements():
-    ####
-    all_measurement_data = get_all_measurement_data()
 
+# Calculates the average temperature for the last 10 days present in the database
+# and converts the data to datasets (temp, location and chart color) and labels (datetime)
+def convert_graph_data(all_measurement_data):
     # Create a dictionary to store temperature values for each location and date
     temperature_data = defaultdict(lambda: defaultdict(list))
 
@@ -20,9 +18,8 @@ def show_measurements():
     for measurement in all_measurement_data:
         location = measurement['location']
         timestamp = measurement['timestamp'][:-9]  # Remove the time part for date
-
         temperature_data[location][timestamp].append(measurement['temperature'])
-    print(temperature_data)
+
     # Calculate the average temperature for each date and each location
     for location, date_temps in temperature_data.items():
         temperature_values = []
@@ -34,16 +31,14 @@ def show_measurements():
             'label': location,
             'data': temperature_values,
             'fill': False,
-            'borderColor': getRandomColor(),
+            'borderColor': get_random_color(),
             'lineTension': 0.1
         })
 
     # Convert data to JSON format
-    print(labels)
-    print('-------------------------------------------------')
-    print(datasets)
     data_json = {
         'labels': labels,
         'datasets': datasets
     }
-    return render_template('measurements.html', data_json=json.dumps(data_json), temps=all_measurement_data)
+
+    return data_json

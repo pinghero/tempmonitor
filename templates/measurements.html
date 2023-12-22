@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html>
-<body>
+<body onload="sortTable(0);">
     <head>
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="/static/styles/styles.css" />
     	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script src="static/js/sort_buttons.js"></script>
+        <script src="static/js/header_sorting.js"></script>
+        <script src="static/js/filter_data.js"></script>
     </head>
-        <canvas id="linechart" width="900" height="200"></canvas>
+    <h1>Last 10 days measured</h1>
+    <hr>
+    <canvas id="linechart" width="900" height="200"></canvas>
 <script>
   var ctx = document.getElementById('linechart').getContext('2d');
-
-  // Assuming you have passed data_json from Flask
   var data_json = {{ data_json | safe }};
-
   var linechart = new Chart(ctx, {
     type: "line",
     data: {
@@ -29,25 +32,64 @@
       }
     }
   });
-
 </script>
 
+    <h1>All measurement data</h1>
+    <hr>
+<div class="button-container">
+    <button id="temperatureButton" onclick="toggleInput('temp')">Temperature</button>
+    <input type="number" id="tempFrom" class="hide" placeholder="From">
+    <input type="number" id="tempTo" class="hide" placeholder="To">
 
-    <table class="styled-table">
+    <button id="humidityButton" onclick="toggleInput('humidity')">Humidity</button>
+    <input type="number" id="humidityFrom" class="hide" placeholder="From">
+    <input type="number" id="humidityTo" class="hide" placeholder="To">
+
+    <button id="dateButton" onclick="toggleInput('date')">Date</button>
+    <input type="date" id="dateFrom" class="hide">
+    <input type="date" id="dateTo" class="hide">
+
+    <button id="locationButton" onclick="toggleLocationInput()">Location</button>
+    <input type="text" id="location" class="hide" placeholder="Enter Location">
+
+    <button onclick="applyFilters()">Apply Filters</button>
+</div>
+<table class="styled-table" id="myTable">
+    <thead>
         <tr>
-          <th>Timestamp</th>
-          <th>Location</th>
-          <th>Temperature</th>
-          <th>Humidity</th>
+            <th onclick="sortTable(0)" class="sortable">Timestamp<span class="sort-indicator"></span></th>
+            <th onclick="sortTable(1)" class="sortable">Location<span class="sort-indicator"></span></th>
+            <th onclick="sortTable(2)" class="sortable">Temperature<span class="sort-indicator"></span></th>
+            <th onclick="sortTable(3)" class="sortable">Humidity<span class="sort-indicator"></span></th>
         </tr>
-        {% for temp in temps %}
-        <tr>
-          <td>{{ temp.timestamp }}</td>
-          <td>{{ temp.location }}</td>
-          <td>{{ temp.temperature }}</td>
-          <td>{{ temp.humidity }}</td>
-        </tr>
-        {% endfor %}
-      </table>
+    </thead>
+    <tbody id="tableBody">
+    
+    </tbody>
+</table>
+
+    <script>
+        // JavaScript code to fetch data (all measurements) and populate the table
+        fetch('/get_table_data')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#myTable tbody');
+
+                data.forEach(item => {
+                    const row = tableBody.insertRow();
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+                    const cell4 = row.insertCell(3);
+
+                    cell1.textContent = item.timestamp;
+                    cell2.textContent = item.location;
+                    cell3.textContent = item.temperature;
+                    cell4.textContent = item.humidity;
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    </script>
+
 </body>
 </html> 

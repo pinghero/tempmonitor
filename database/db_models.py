@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
+# Get SQLAlchemy instance
 db = SQLAlchemy()
 
 class measurments(db.Model):

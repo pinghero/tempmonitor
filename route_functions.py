@@ -1,62 +1,58 @@
-from database.db_models import *
-from flask import Flask, render_template, request, url_for, redirect, g
+from database.db_models import measurments, users
+from flask import Flask, render_template, request, url_for, redirect, g, jsonify
+from dao import get_all_measurement_data, get_filtered_data
+from convert_graph_data import convert_graph_data
 import json
-import os
 import mariadb
-from datetime import datetime
 import hashlib
-import os
 import uuid
 
-#def show_measurments(request):
-#    rows = measurments.query.all()
-#    rows_to_show = []
-#    for row in rows:
-#        row.date = row.created_on.date()
-#        row.time = row.created_on.time()
-#    return render_template('measurements.html', temps=rows)
+def show_measurements():
+    # Get all measurements
+    all_measurement_data = get_all_measurement_data()
 
-def get_all_measurement_data():
-    measurements_data = measurments.query.all()
+    # Convert measurements to labels and datasets for graph rendering
+    data_json = convert_graph_data(all_measurement_data)
 
-    data = []
+    return render_template('measurements.html', data_json=json.dumps(data_json), data=all_measurement_data)
 
-    for measurement in measurements_data:
-        timestamp = measurement.created_on.strftime("%Y-%m-%d %H:%M:%S")
-        data.append({
-            'location': measurement.location,
-            'temperature': float(measurement.temperature),
-            'humidity': float(measurement.humidity),
-            'timestamp': timestamp
-        })
+def filter_data():
+    filters = request.get_json()
+    filtered_data = get_filtered_data(filters)
 
-    return data
+    return filtered_data
 
 def add_measurment(request):
     try:
+
+        # Convert JSON to measurements database model
         json_string = request.get_json(force=True)
-        new_data = measurments(temperature=json_string['temperature'], humidity=json_string['humidity'])
+        new_data = measurments(temperature=json_string['temperature'],
+                               humidity=json_string['humidity'],
+                               location=json_string['location'])
+
+        # Add new data to database
         db.session.add(new_data)
         db.session.commit()
         return 'Success!', 200
+
     except:
+
         return "BAD REQUEST", 400
 
+# Adds new user
 def add_new_user(request):
     json_string = request.get_json(force=True)
+
+    # Generate random password salt
     generated_salt = uuid.uuid4().hex
+
+    # Generate hash using password and generated salt
     generated_hash = hashlib.sha256(generated_salt.encode() + json_string['password'].encode()).hexdigest()
+
+    # Convert data to users database model
     new_data = users(username=json_string['username'], salt=generated_salt, pwd_hash=generated_hash)
+
+    # Add new user to database
     db.session.add(new_data)
     db.session.commit()
-    return 'YES'
-
-def log_in(request):
-    json_string = request.get_json(force=True)
-    user = users.query.filter(users.username == json_string['username']).first()
-    if user is not None:
-        if user.pwd_hash is not None:
-            return 'did it'
-    else:
-        return 'No user'
-
