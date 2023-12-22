@@ -43,3 +43,25 @@ Der von mir gewählte virtuelle Server hat die folgenden Eigenschaften:
 Nachdem die Anmietung abgeschlossen war, erhielt ich die Root-Benutzeranmeldeinformationen für meinen V-Server.
 
 ### 2.1 Benutzer-Konfiguration
+Der Serveranbieter stellte mir ein SSH-Passwort für den Root-Benutzer zur Verfügung. Da die Kennwortauthentifizierung anfällig für Brute-Force-Angriffe ist, wurden wir angewiesen, einen Linux-Benutzer zu erstellen, der sich über eine schlüsselbasierte Authentifizierung beim Server anmelden kann.
+
+Um dies zu erreichen, muss ich mich zunächst mit den Anmeldedaten am Server per SSH anmelden:  
+```Console
+pinghero@alex-desktop:~$ ssh root@server-ip
+```
+Nach Eingabe des Passworts in die Eingabeaufforderung habe ich mich erfolgreich mit dem Server verbunden.
+
+### 2.1.1 Neuen Benutzer anlegen
+Nach erfolgreicher Verbindung zum Server musste ein neuer Benutzer angelegt werden.  
+Dies kann mit folgendem Linux-Befehl erreicht werden:
+```Console
+root@ubuntu:~$ adduser <username>
+```
+Nachdem der Befehl ausgeführt wurde, wurde ich aufgefordert, ein Benutzerpassword zu erstellen. Danach wurde der neue Benutzer erstellt.
+
+Damit der neue Benutzer administrative Befehle auf dem Server ausführen kann, benötigt er sudo-Rechte. Zu diesem Zweck musste ich den Benutzer zur sudo-Benutzergruppe hinzufügen. Dazu führe ich den Befehl aus:
+```Console
+root@ubuntu:~$ usermod -aG sudo <username>
+```
+
+Und um zum neuen Benutzer zu wechseln, führe ich ```su - <username>```.
