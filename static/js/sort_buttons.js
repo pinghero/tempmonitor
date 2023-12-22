@@ -1,3 +1,4 @@
+//show/hide filter option buttons
 function toggleInput(field) {
     var inputFrom = document.getElementById(field + 'From');
     var inputTo = document.getElementById(field + 'To');

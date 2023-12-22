@@ -7,6 +7,7 @@ function clearTable() {
 
 // Function to update the table with new data
 function updateTable(data) {
+    // Get table from table ID
     var table = document.getElementById("myTable");
     var tbody = table.querySelector('tbody');
 
@@ -48,6 +49,7 @@ function applyFilters() {
         location
     };
 
+    // If filter data exit, get filtered data from backend and update table
     if (Object.values(filterData).some(value => value !== '')) {
         fetch('/get_filtered_table_data', {
             method: 'POST',

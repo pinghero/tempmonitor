@@ -4,6 +4,9 @@ from collections import defaultdict
 def get_random_color():
     import random
     return "#{:06x}".format(random.randint(0, 0xFFFFFF))
+
+# Calculates the average temperature for the last 10 days present in the database
+# and converts the data to datasets (temp, location and chart color) and labels (datetime)
 def convert_graph_data(all_measurement_data):
     # Create a dictionary to store temperature values for each location and date
     temperature_data = defaultdict(lambda: defaultdict(list))

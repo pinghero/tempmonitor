@@ -1,5 +1,6 @@
 from database.db_models import measurments
 from flask import jsonify
+
 # Queries all measurement data in database and returns them as a list of dictionaries
 def get_all_measurement_data():
     measurements = measurments.query.all()
@@ -16,13 +17,17 @@ def get_all_measurement_data():
         })
 
     return data
-from flask import jsonify
 
+
+# Queries measurement data with filter options and returns them as a list of dictionaries
 def get_filtered_data(filters):
+    # Remove key, value pair if value = None
     filter_dict = {k: v for k, v in filters.items() if v is not None}
+
+    # Initialize query
     query = measurments.query
 
-    print(filter_dict)
+    # Check if value is an empty string (no filter option given by user) and add it to the query if not
     if not len(filter_dict['tempFrom']) == 0:
         query = query.filter(measurments.temperature >= filter_dict['tempFrom'])
 
@@ -44,10 +49,12 @@ def get_filtered_data(filters):
     if not len(filter_dict['location']) == 0:
         query = query.filter(measurments.location == filter_dict['location'])
 
+    # Run the query
     measurements = query.all()
 
     data = []
 
+    # Loop through query result and return result in JSON format
     for measurement in measurements:
         timestamp = measurement.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Convert datetime to string
         data.append({
