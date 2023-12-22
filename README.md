@@ -1,6 +1,5 @@
 # TempMonitor
 
----
 ## Inhaltverzeichnis
 
 ## 1. Einleitung
