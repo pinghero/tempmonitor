@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, g
 import json
 import mariadb
 from datetime import datetime
