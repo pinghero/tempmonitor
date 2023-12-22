@@ -23,22 +23,23 @@ def filter_data():
     return filtered_data
 
 def add_measurment(request):
-    try:
 
-        # Convert JSON to measurements database model
-        json_string = request.get_json(force=True)
-        new_data = measurments(temperature=json_string['temperature'],
-                               humidity=json_string['humidity'],
-                               location=json_string['location'])
+ #   try:
 
-        # Add new data to database
-        db.session.add(new_data)
-        db.session.commit()
-        return 'Success!', 200
+    # Convert JSON to measurements database model
+    json_string = request.get_json(force=True)
+    new_data = measurments(temperature=json_string['temperature'],
+                           humidity=json_string['humidity'],
+                           location=json_string['location'])
 
-    except:
+    # Add new data to database
+    db.session.add(new_data)
+    db.session.commit()
+    return 'Success!', 200
 
-        return "BAD REQUEST", 400
+ #   except:
+
+#      return "BAD REQUEST", 400
 
 # Adds new user
 def add_new_user(request):
