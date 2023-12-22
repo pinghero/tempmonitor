@@ -256,4 +256,25 @@ Ausgabe:
 ```
 Das ```venv``` am Anfang bestätigt, dass wir uns in einer virtuellen Umgebung befinden und wir können mit der Installation aller notwendigen Pakete beginnen.
 
-### 2.4.2 
+### 2.4.2 Flask und Gunicorn Konfiguration
+Als nächstes, müssen wir Flask und Gunicorn installieren:
+```Console
+(venv) pinghero@ubuntu:~$ pip install gunicorn flask
+```
+
+Nach erfolgreicher Installation werden wir eine einfache Flask-Anwendung erstellen, die string "Hello World" zurückgibt:
+```Console
+(venv) pinghero@ubuntu:~$ vim /tempmonitor/flaskapp.py
+```
+```Python filename="flaskapp.py"
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "Hello World!"
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
+
+```
