@@ -4,7 +4,7 @@ import mariadb
 from datetime import datetime
 from verify_password import verify_password
 from route_functions import show_measurements, get_all_measurement_data, get_filtered_data, add_measurment
-from database.db_models import measurments, users
+from database.db_models import *
 from flask_httpauth import HTTPBasicAuth
 from dao import get_all_measurement_data
 
