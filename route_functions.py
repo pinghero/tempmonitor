@@ -1,4 +1,4 @@
-from database.db_models import measurments, users
+from database.db_models import *
 from flask import Flask, render_template, request, url_for, redirect, g, jsonify
 from dao import *
 from convert_graph_data import convert_graph_data
