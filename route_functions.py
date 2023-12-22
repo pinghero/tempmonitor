@@ -1,6 +1,6 @@
-from database.db_models import measurments, users
+from database.db_models import *
 from flask import Flask, render_template, request, url_for, redirect, g, jsonify
-from dao import get_all_measurement_data, get_filtered_data
+from dao import *
 from convert_graph_data import convert_graph_data
 import json
 import mariadb
@@ -23,7 +23,8 @@ def filter_data():
     return filtered_data
 
 def add_measurment(request):
-    try:
+
+   try:
 
         # Convert JSON to measurements database model
         json_string = request.get_json(force=True)
@@ -36,9 +37,9 @@ def add_measurment(request):
         db.session.commit()
         return 'Success!', 200
 
-    except:
+   except:
 
-        return "BAD REQUEST", 400
+     return "BAD REQUEST", 400
 
 # Adds new user
 def add_new_user(request):
