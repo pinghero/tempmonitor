@@ -188,7 +188,7 @@ Output
              └─9920 "nginx: worker process
 ```
 
-### 2.3.2 NGNIX Konfiguration
+### 2.3.2 NGNIX-Erstkonfiguration
 Wir müssen einen benutzerdefinierten Serverblock mit unserer Domain und dem Proxy für den Anwendungsserver hinzufügen.  
 Damit wird NGNIX im Wesentlichen mitgeteilt, welche Ports es abhören und welche Webseiten es bei einer Anfrage bereitstellen soll.  
 
@@ -256,7 +256,7 @@ Ausgabe:
 ```
 Das ```venv``` am Anfang bestätigt, dass wir uns in einer virtuellen Umgebung befinden und wir können mit der Installation aller notwendigen Pakete beginnen.
 
-### 2.4.2 Flask und Gunicorn Konfiguration
+### 2.4.2 Flask und Gunicorn Installation
 Als nächstes, müssen wir Flask und Gunicorn installieren:
 ```Console
 (venv) pinghero@ubuntu:~$ pip install gunicorn flask
@@ -266,6 +266,7 @@ Nach erfolgreicher Installation werden wir eine einfache Flask-Anwendung erstell
 ```Console
 (venv) pinghero@ubuntu:~$ vim /tempmonitor/flaskapp.py
 ```
+In ```flaskapp.py```:
 ```Python filename="flaskapp.py"
 from flask import Flask
 app = Flask(__name__)
@@ -278,3 +279,259 @@ if __name__ == "__main__":
     app.run(host='0.0.0.0')
 
 ```
+Um unsere App zu testen:
+```Console
+(venv) pinghero@ubuntu:~$ python flaskapp.py
+```
+
+Wenn wir unsere Website in einem Webbrowser mit ```http://server-ip:5000```, sollten wir ```Hello World!``` sehen.
+
+### 2.4.3 WSGI-Einstiegspunkt
+Als nächstes müssen wir eine WSGI-Datei erstellen. Diese wird Gunicorn (unserem Webserver) mitteilen, wie er mit unserer Anwendung interagieren soll.  
+
+Wir erstellen eine Datei namens wsgi.py in unserem Anwendungsordner.  
+```Console
+(venv) pinghero@ubuntu:~$ vim ~/tempmonitor/wsgi.py
+```
+In ```wsgi.py```:
+```Python
+from myproject import app
+
+if __name__ == "__main__":
+    app.run()
+```
+### 2.4.4 Gunicorn Konfiguration
+Anschließend müssen wir einen Systemprozess für Gunicorn erstellen. Dies ermöglicht es unserem Betriebssystem, Gunicorn automatisch zu starten und unsere Flask-Anwendung zu bedienen, sobald der Server neu gestartet wird.
+
+Um einen Systemprozess zu erstellen:
+```Console
+pinghero@ubuntu:~$ sudo vim /etc/systemd/system/tempmonitor.service
+```
+In ```/etc/systemd/system/tempmonitor.service```:
+```Console
+[Unit]
+Description=Gunicorn instance to serve tempmonitor
+After=network.target
+
+[Service]
+User=pinghero
+Group=www-data
+WorkingDirectory=/home/pinghero/tempmonitor
+Environment="PATH=/home/pinghero/tempmonitor/venv/bin"
+ExecStart=/home/pinghero/tempmonitor/venv/bin/gunicorn --workers 3 --bind unix:tempmonitor.sock -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Dies teilt dem System den Pfad unserer virtuellen Umgebung, den Pfad unserer Anwendung, den Pfad von gunicorn und die Parameter mit, mit denen gunicorn ausgeführt werden soll.  
+Dann starten wir den Prozess mit:
+```Console
+pinghero@ubuntu:~$ sudo systemctl start myproject
+pinghero@ubuntu:~$ sudo systemctl enable myproject
+```
+### 2.4.5 NGINX Konfiguration
+Gunicorn läuft nun als Prozess und wartet auf Anfragen an die socket ```tempmonitor.sock```. Wir müssen nun NGNIX so konfigurieren, dass es eingehende Anfragen an diese socket weiterleitet, damit sie an unsere Anwendung weitergeleitet werden können.
+
+In ```/etc/nginx/sites-available/tempmonitor```:
+```Console
+server {
+    listen 80;
+    server_name pinghero.online www.pinghero.online;
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/pinghero/tempmonitor/tempmonitor.sock;
+    }
+}
+```
+Und wir starten den Server neu:
+```Console
+pinghero@ubuntu:~$ sudo systemctl restart nginx
+```
+Zusätzlich sollten wir die Firewall-Konfiguration so ändern, dass sie vollen Zugriff auf NGNIX erlaubt:
+```Console
+pinghero@ubuntu:~$ sudo ufw allow 'Nginx Full'
+```
+Wenn wir nun den Browser öffnen und unsere URL eingeben, sollten wir die String ```"Hello World!"``` sehen.
+
+### 2.5 SSL-Zertifikat
+Unser Webserver ist jetzt betriebsbereit. Er leitet den Webverkehr zu unserer Flask-Anwendung um. Dies geschieht jedoch über das HTTP-Protokoll, das nicht verschlüsselt ist. Das ist natürlich suboptimal, da die Kommunikation von und zu unserem Server anfällig für Angriffe ist. Um dieses Problem zu lösen, müssen wir ein TSL/SSL-Zertifikat von einer Zertifizierungsstelle (CA) erhalten.
+In meinem Fall ist dies <a href="https://www.digicert.com/">DigiCert</a>.  
+
+### 2.5.1 SSL-Zertifikat hochladen
+Nachdem mein Zertifikat ausgestellt wurde, erhielt ich eine Datei namens ```pinghero.pem```
+Als die Zertifikate ausgestellt wurden, erhielt ich drei Dateien: ```pinghero.pem``` und ```DigiCertCA.crt```. Die sind die so genante "primary" und "intermidiate" Zertifikate.  
+Zusätzlich habe ich eine private Schlüsseldatei namens ```_.pinghero.online_private_key.key```.  
+Nachdem ich die Dateien erhalten habe, habe ich lokal auf mein Computer eine einzige ```.crt``` Datei erstellt, die beide Zertifikate enthält:
+```Console
+pinghero@desktop:~$ cat your_domain_name.crt DigiCertCA.crt >> bundle.crt
+```
+Und auf meinen Server hochgeladen:
+```Console
+pinghero@desktop:~$ sftp pinghero@server-ip
+sftp> cd /etc/ssl/
+sftp> put bundle.crt
+sftp> _.pinghero.online_private_key.key
+```
+
+### 2.5.2 NGINX SSL-Konfiguration
+Nach dem erfolgreichen Hochladen des SSL-Zertifikats und meines privaten Schlüssels, müssen wir NGNIX für dessen Verwendung konfigurieren.
+
+In ```/etc/nginx/sites-enabled/tempmonitor```:
+```Console
+server {
+listen 443;
+ssl on;
+ssl_certificate /etc/ssl/bundle.crt;
+ssl_certificate_key /etc/ssl/_.pinghero.online_private_key.key;
+ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+server_name pinghero.online www.pinghero.online;
+
+      location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/pinghero/tempmonitor/flaskapp.sock;
+    }
+}
+```
+Dadurch wird NGINX angewiesen, Port 443 (HTTPS-Port) zu überwachen und unser Zertifikat zu verwenden.
+
+Außerdem sollten wir sicherstellen, dass nur HTTPS-Verkehr zugelassen wird.  
+
+In ```/etc/nginx/sites-enabled/default```:
+```Console
+server {
+    listen 80 default_server;
+
+    server_name _;
+
+    return 301 https://$host$request_uri;
+}
+```
+
+Dadurch wird für jede HTTP-Anfrage auf unserem Server der "HTTP code 301" zurückgegeben.
+
+## 3. Datenbank Einrichtung
+Um unsere Temperaturmessungen auf unserem Server speichern zu können, benötigen wir eine Datenbank. Es gibt viele SQL Server-Optionen, aber ich habe mich für MariaDB entschieden.
+
+### 3.1 MariaDB Installation
+Um MariaDb Server zu installieren:
+```Console
+pinghero@ubuntu:~$ sudo apt install mariadb-server
+```
+Dann müssen wir den Server mit dem Befehl starten:
+```Console
+pinghero@ubuntu:~$ sudo systemctl start mariadb.service
+```
+
+### 3.2 MariaDB Konfiguration
+MariaDB läuft jetzt, aber diese Befehle fordern den Benutzer nicht auf, ein Passwort zu erstellen oder die Konfiguration von MariaDB zu bearbeiten, die standardmäßig unsicher ist.  
+Um dies zu verhindern, müssen wir das Skript ```mysql_secure_installation``` ausführen:
+```Console
+pinghero@ubuntu:~$ sudo mysql_secure_installation
+```
+Das Skript fordert unter anderem die Konfiguration des Passworts für den Root-Benutzer und die Konfiguration des Fernzugriffs an.
+Weitere Informationen über das Skript finden Sie <a href="https://dev.mysql.com/doc/refman/8.0/en/mysql-secure-installation.html">hier</a>.
+
+### 3.3 Datenbank Tabellen
+Die Datenbank hat zwei Tabellen: ```measurements``` und ```users```.  
+Ihre Verwendung wird unter HIERHIER ausführlich beschrieben.
+
+Die Tabelle ```measurements``` hat die folgenden Spalten:
+- ID (Primärschlüssel)
+- Temperature 
+- Humidity
+- Location  
+
+Befehl ```CREATE TABLE```:  
+```SQL
+CREATE TABLE measurments(ID MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, TEMPERATURE FLOAT, HUMIDITY FLOAT, LOCATION CHAR(50), CREATED_ON TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
+```
+Die Tabelle ```users``` hat die folgenden Spalten:
+- Username (Primärschlüssel)
+- Salt
+- Pwd_hash
+
+Befehl ```CREATE TABLE```:
+```SQL
+CREATE TABLE users(username CHAR(15) NOT NULL UNIQUE, SALT BINARY(32), PWD_HASH BINARY(32));
+```
+
+### 3.4 Flask-SQLAlchemy
+Für die Kommunikation zwischen Python und der Datenbank wird Flask-SQLAlchemy benötigt.  
+SQLAlchemy ist ein SQL-Toolkit, das effizienten und leistungsstarken Datenbankzugriff für relationale Datenbanken bietet. 
+
+SQLAlchemy ist in der [db_models.py](database/db_models.py) instanziert. Dann wird es initialisiert in [flaskapp.py](flaskapp.py)
+Es werden auch zwei Klassen für die Datenbanktabellen definiert: ```measurements``` and ```users```.
+Die sind nach den Datenbanktabellen modelliert. Mit diesen beiden Klassen und der Instanz von SQLAlchemy können wir in der Datenbank lesen oder schreiben.
+
+Alle Datenbankzugriffsoperationen erfolgen in [dao.py](dao.py)
+
+## 4. Programmierung
+
+### 4.1 Backend
+Es gibt 2 Hauptfunktionen, die der Server erfüllen kann. Diese sind: 
+- Hinzufügen einer neuen Messung [add_measurment()](route_functions.py)
+- Anzeigen der Messungen im Browser [show_measurements()](route_functions.py)
+
+Zusätzlich gibt es weitere Hilfsfunktionen für:
+- Benutzerauthentifizierung [verify_password.py](verify_password.py)
+- Datenbank kommunikation mit Python [dao.py](dao.py)
+
+### 4.1.1 Hinzufügen einer neuen Messung
+Damit der ESP-Controller eine neue Messung senden kann, wird eine POST-Anfrage an die ```pinghero.online/add``` Route unseres Servers gesendet. Wie der ESP Controller diese Anfragen sendet, wird in HIERHIER ausführlich beschrieben. Das Backend erwartet JSON-Daten, die die folgende Struktur haben:  
+```JSON
+{
+  "temperature": "20.1",
+  "humidity":"67.3",
+  "location":"Location A"
+}
+```
+Wenn die Benutzerauthentifizierung (Siehe HIEHIER) erfolgreich war und die Daten die richtige Struktur haben, wird die neue Messung in die Datenbank geschrieben (Siehe HIEREHIER).
+
+### 4.1.2 Anzeigen der Messungen im Browser
+Wenn der Benutzer ```pinghero.online``` besucht, wird er mit einer Tabelle aller in der Datenbank verfügbaren Messungen begrüßt.  
+Die Daten werden zunächst aus der Datenbank gelesen. Sie werden an die HTML-Datei [measurements.html](templates/measurements.html) übergeben. Dort wird mittels Javascript-Code eine Tabelle dynamisch erzeugt. Wenn der Benutzer es wünscht, kann er die Daten sortieren (Siehe HIERHIER) oder Suchparameter anwenden (Siehe HIERHIER).
+
+
+### 4.1.3 Benutzerauthentifizierung
+Die Benutzerdaten werden in der Tabelle ```users``` gespeichert. Wenn eine neue Anfrage eine Autorisierung erfordert, wird der in der "Request header" der Anfrage angegebene Benutzername gelesen und eine Abfrage in der ```users``` Tabelle durchgeführt. (Siehe [verify_password.py](verify_password.py))
+
+Wenn ein Benutzer mit dem angegebenen Benutzernamen existiert, wird ein Hash mit dem angegebenen Passwort und dem aus der Datenbank gelesenen Salt-Wert erzeugt.  
+
+```Python
+generated_hash = hashlib.sha256(user.salt.encode() + password.encode()).hexdigest()
+```
+Wenn der generierte Passwort-Hash mit dem in der Benutzertabelle für diesen Benutzer gespeicherten Hash übereinstimmt, wird ihm der Zugang gewährt.
+
+### 4.2 Frontend
+Die Daten werden auf dem Frontend auf zwei Arten dargestellt:
+- Ein Diagramm, das die durchschnittliche Temperatur jedes Tages für die Messungen der letzten 10 Tage enthält.
+- Eine Tabelle, die sich aus einzelnen Messungen zusammensetzt.
+
+Zu den zusätzlichen Funktionen gehören:
+- Filter-Buttons, die angeklickt werden können, um Eingabefelder für die Filterung der einzelnen Messattribute zu öffnen.
+- Sort-Buttons built on the table headers.
+
+### 4.2.1 Diagramm
+<p align="center">
+  <img src="./img/chart.png" alt="Chart" width="400">
+</p>
+Der Graph wird mit Hilfe der Javascript-Bibliothek <a href="https://www.chartjs.org/">Chart.js</a> erstellt.  
+Der Quellcode ist zu finden in [measurements.html](templates/measurements.html).
+
+### 4.2.2 Filter Funktion
+<p align="center">
+  <img src="./img/filters.png" alt="Filter buttons" width="400">
+</p>
+Es gibt vier Tasten für die Filterfunktion. Jede, wenn sie angeklickt wird, offenbart Eingabefelder für Temperatur, Luftfeuchtigkeit, Ort und Datum.  
+
+Wenn die Filter angewendet werden, wird ein AJAX-Aufruf der Route ```/get_filtered_table_data``` ausgeführt (Siehe [filter_data.js](static/js/filter_data.js)).  
+Dann führt Flask eine Datenbankabfrage basierend auf den vom Benutzer angegebenen Filtern aus. (Siehe [get_filtered_data](dao.py))  
+Die Messdaten werden dann in JSON umgewandelt und an das Frontend zurückgegeben, wo die Tabelle dynamisch aktualisiert wird.
+
+### 4.3 ESP-Controller
+
+
+
+
