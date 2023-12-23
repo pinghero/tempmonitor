@@ -6,13 +6,52 @@
 
 ## Inhaltverzeichnis
 
+<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
+
+  - [1. Einleitung](#1-einleitung)
+  - [2. Server Konfiguration](#2-server-konfiguration)
+    * [2.1 Benutzer-Konfiguration](#21-benutzer-konfiguration)
+      + [2.1.1 Neuen Benutzer anlegen](#211-neuen-benutzer-anlegen)
+      + [2.1.2 SSH-Schlüssel-Generierung](#212-ssh-schlüssel-generierung)
+      + [2.1.3 Deaktivierung der passwortbasierten Authentifizierung](#213-deaktivierung-der-passwortbasierten-authentifizierung)
+    * [2.2 Domain-Konfiguration](#22-domain-konfiguration)
+    * [2.3 Reverse-Proxy-Konfiguration](#23-reverse-proxy-konfiguration)
+      + [2.3.1 NGNIX Installation](#231-ngnix-installation)
+      + [2.3.2 NGNIX-Erstkonfiguration](#232-ngnix-erstkonfiguration)
+    * [2.4 Flask und Gunicorn Anwendungsserver](#24-flask-und-gunicorn-anwendungsserver)
+      + [2.4.1 Erstellung einer virtuellen Umgebung](#241-erstellung-einer-virtuellen-umgebung)
+      + [2.4.2 Flask und Gunicorn Installation](#242-flask-und-gunicorn-installation)
+      + [2.4.3 WSGI-Einstiegspunkt](#243-wsgi-einstiegspunkt)
+      + [2.4.4 Gunicorn Konfiguration](#244-gunicorn-konfiguration)
+      + [2.4.5 NGINX Konfiguration](#245-nginx-konfiguration)
+    * [2.5 SSL-Zertifikat](#25-ssl-zertifikat)
+      + [2.5.1 SSL-Zertifikat hochladen](#251-ssl-zertifikat-hochladen)
+      + [2.5.2 NGINX SSL-Konfiguration](#252-nginx-ssl-konfiguration)
+  - [3. Datenbank Einrichtung](#3-datenbank-einrichtung)
+    * [3.1 MariaDB Installation](#31-mariadb-installation)
+    * [3.2 MariaDB Konfiguration](#32-mariadb-konfiguration)
+    * [3.3 Datenbank Tabellen](#33-datenbank-tabellen)
+    * [3.4 Flask-SQLAlchemy](#34-flask-sqlalchemy)
+  - [4. Programmierung](#4-programmierung)
+    * [4.1 Backend](#41-backend)
+      + [4.1.1 Hinzufügen einer neuen Messung](#411-hinzufügen-einer-neuen-messung)
+      + [4.1.2 Anzeigen der Messungen im Browser](#412-anzeigen-der-messungen-im-browser)
+      + [4.1.3 Benutzerauthentifizierung](#413-benutzerauthentifizierung)
+    * [4.2 Frontend](#42-frontend)
+      + [4.2.1 Diagramm](#421-diagramm)
+        + [4.2.2 Filter Funktion](#422-filter-funktion)
+    * [4.3 ESP32-Controller](#43-esp32-controller)
+
+<!-- TOC end -->
+<!-- TOC --><a name="1-einleitung"></a>
 ## 1. Einleitung
 
-Das Tempmonitor-Projekt ist eine Implementierung eines Webservers, der als API-Endpunkt zum Senden von Temperatur- 
+Das Tempmonitor-Projekt ist eine Implementierung eines Webservers, der als API-Endpunkt zum Senden von Temperatur-
 und Feuchtigkeitsdaten von einem ESP32-Mikrocontroller dient.Der Mikrocontroller verwendet einen Sensor, um die Temperaturdaten zu lesen und führt dann API-Aufrufe an den Webserver aus,
-um die Daten in einen SQL-Server zu schreiben und sie dann visuell auf der Webseite darzustellen. Diese Readme-Datei dient als Dokumentation des Prozesses der Konfiguration des Servers, der Installation der notwendigen Software zum Betrieb des Servers, der Programmierung des Backends mit dem Flask-Framework, der Programmierung des Mikrocontrollers zum 
+um die Daten in einen SQL-Server zu schreiben und sie dann visuell auf der Webseite darzustellen. Diese Readme-Datei dient als Dokumentation des Prozesses der Konfiguration des Servers, der Installation der notwendigen Software zum Betrieb des Servers, der Programmierung des Backends mit dem Flask-Framework, der Programmierung des Mikrocontrollers zum
 Lesen und Senden der Daten und der Programmierung des Frontends für die visuelle Darstellung der Daten.
 
+<!-- TOC --><a name="2-server-konfiguration"></a>
 ## 2. Server Konfiguration
 Der erste Schritt bestand darin, einen virtuellen Server bei einem Hosting-Anbieter zu mieten. Wir wurden angewiesen, den Server mit der geringsten RAM- und Festplattenkapazität zu wählen, da das Projekt nicht viel von diesen Ressourcen benötigt.
 
@@ -42,15 +81,17 @@ Der von mir gewählte virtuelle Server hat die folgenden Eigenschaften:
 
 Nachdem die Anmietung abgeschlossen war, erhielt ich die Root-Benutzeranmeldeinformationen für meinen V-Server.
 
+<!-- TOC --><a name="21-benutzer-konfiguration"></a>
 ### 2.1 Benutzer-Konfiguration
 Der Serveranbieter stellte mir ein SSH-Passwort für den Root-Benutzer zur Verfügung. Da die Kennwortauthentifizierung anfällig für Brute-Force-Angriffe ist, wurden wir angewiesen, einen Linux-Benutzer zu erstellen, der sich über eine schlüsselbasierte Authentifizierung beim Server anmelden kann.
 
-Um dies zu erreichen, mussen wir uns zunächst mit den Anmeldedaten am Server per SSH anmelden:  
+Um dies zu erreichen, mussen wir uns zunächst mit den Anmeldedaten am Server per SSH anmelden:
 ```Console
 pinghero@desktop:~$ ssh root@server-ip
 ```
 Nach Eingabe des Passworts in die Eingabeaufforderung habe ich mich erfolgreich mit dem Server verbunden.
 
+<!-- TOC --><a name="211-neuen-benutzer-anlegen"></a>
 ### 2.1.1 Neuen Benutzer anlegen
 Nach erfolgreicher Verbindung zum Server musste ein neuer Benutzer angelegt werden.  
 Dies kann mit folgendem Linux-Befehl erreicht werden:
@@ -63,6 +104,7 @@ Damit der neue Benutzer administrative Befehle auf dem Server ausführen kann, b
 ```Console
 root@ubuntu:~$ usermod -aG sudo <username>
 ```
+<!-- TOC --><a name="212-ssh-schlüssel-generierung"></a>
 ### 2.1.2 SSH-Schlüssel-Generierung
 Um sicherzustellen, dass der Server gegen mögliche Angriffe geschützt ist, ist eine Authentifizierung mit SSH-Schlüssel erforderlich.  
 Dazu müssen wir zunächst ein RSA-Schlüsselpaar auf dem Gerät erstellen, von dem aus wir eine Verbindung herstellen wollen.  
@@ -140,6 +182,7 @@ and check to make sure that only the key(s) you wanted were added.
 
 Das bedeutet, dass wir unseren Schlüssel erfolgreich kopiert haben und uns nun mit ihm anmelden können.
 
+<!-- TOC --><a name="213-deaktivierung-der-passwortbasierten-authentifizierung"></a>
 ### 2.1.3 Deaktivierung der passwortbasierten Authentifizierung
 Although we configured a SSH-Key for out new user,
 Obwohl wir einen SSH-Schlüssel für unseren neuen Benutzer konfiguriert haben,
@@ -154,21 +197,24 @@ Da wir nun einen neuen Benutzer haben, der sich mit dem Server verbinden kann un
 Damit die Änderungen durchgeführt werden können, starten wir den SSH-Dienst neu mit ```sudo systemctl restart ssh```.  
 Jetzt können wir uns nur noch mit unserem Benutzer und dem generierten SSH-Schlüssel verbinden.
 
+<!-- TOC --><a name="22-domain-konfiguration"></a>
 ### 2.2 Domain-Konfiguration
 Jetzt kann unser Server von einem Browser über seine IP-Adresse erreicht werden. Wir können das ändern, indem wir die IP-Adresse mit einem Domänennamen verknüpfen. Dazu müssen wir die DNS-Einträge ändern. Dies ist je nach Anbieter unterschiedlich, aber in der Regel hat der Anbieter eine Webseite mit DNS-Einstellungen. Dort müssen wir die A-Einträge so ändern, dass sie auf unsere Server-IP-Adresse verweisen.
 
+<!-- TOC --><a name="23-reverse-proxy-konfiguration"></a>
 ### 2.3 Reverse-Proxy-Konfiguration
-Um unseren Server dem Internet auszusetzen und später die verschiedenen HTTP-Anfragen, die wir erhalten, weiterzuleiten, verwenden wir eine Reverse-Proxy-Lösung.  
+Um unseren Server dem Internet auszusetzen und später die verschiedenen HTTP-Anfragen, die wir erhalten, weiterzuleiten, verwenden wir eine Reverse-Proxy-Lösung.
 
 In meinem Fall habe ich mich für NGNIX entschieden, einen beliebten Webserver und Reverse Proxy Lösung.
 
+<!-- TOC --><a name="231-ngnix-installation"></a>
 ### 2.3.1 NGNIX Installation
-Als erstes müssen wir NGNIX auf unserem Server installieren:    
+Als erstes müssen wir NGNIX auf unserem Server installieren:
 ```Console
 pinghero@ubuntu:~$ sudo apt install nginx
 ```
 
-So überprüfen Sie, ob NGNIX installiert ist und läuft:  
+So überprüfen Sie, ob NGNIX installiert ist und läuft:
 ```Console
 pinghero@ubuntu:~$ sudo systemctl status nginx
 ```
@@ -188,16 +234,17 @@ Output
              └─9920 "nginx: worker process
 ```
 
+<!-- TOC --><a name="232-ngnix-erstkonfiguration"></a>
 ### 2.3.2 NGNIX-Erstkonfiguration
 Wir müssen einen benutzerdefinierten Serverblock mit unserer Domain und dem Proxy für den Anwendungsserver hinzufügen.  
-Damit wird NGNIX im Wesentlichen mitgeteilt, welche Ports es abhören und welche Webseiten es bei einer Anfrage bereitstellen soll.  
+Damit wird NGNIX im Wesentlichen mitgeteilt, welche Ports es abhören und welche Webseiten es bei einer Anfrage bereitstellen soll.
 
 Zu diesem Zweck erstellen wir eine neue Konfigurationsdatei für NGNIX:
 ```Console
 pinghero@ubuntu:~$ sudo vim /etc/nginx/sites-available/tempmonitor
 ```
 
-Dann fügen wir Folgendes in die Datei ein:  
+Dann fügen wir Folgendes in die Datei ein:
 ```Console
 server {
     listen 80;
@@ -211,9 +258,9 @@ server {
     }
 }
 ```
-Dadurch wird NGNIX angewiesen, Port 80 (HTTP-Port) abzuhören und an localhost weiterzuleiten. Da das HTTP-Protokoll unverschlüsselt ist, müssen wir ein SSL-Zertifikat hinzufügen, um die HTTPS-Kommunikation zu ermöglichen. Dies wird später erklärt unter HIERHIER.  
+Dadurch wird NGNIX angewiesen, Port 80 (HTTP-Port) abzuhören und an localhost weiterzuleiten. Da das HTTP-Protokoll unverschlüsselt ist, müssen wir ein SSL-Zertifikat hinzufügen, um die HTTPS-Kommunikation zu ermöglichen. Dies wird später erklärt unter [2.5 SSL-Zertifikat](#25-ssl-zertifikat).
 
-Wir sollten NGNIX auch anweisen, die Anfragen an unsere Anwendung statt an localhost weiterzuleiten. Dies wird auch später unter HIERHIER erklärt.
+Wir sollten NGNIX auch anweisen, die Anfragen an unsere Anwendung statt an localhost weiterzuleiten. Dies wird auch später unter [2.4.5 NGINX Konfiguration](#245-nginx-konfiguration) erklärt.
 
 Schließlich müssen wir eine Verknüpfung zwischen der Konfigurationsdatei und der Datei ```sites-enabled``` herstellen, die NGINX beim Start liest:
 ```Console
@@ -224,11 +271,13 @@ Und den NGINX-Dienst neu starten:
 pinghero@ubuntu:~$ sudo systemctl restart nginx
 ```
 
+<!-- TOC --><a name="24-flask-und-gunicorn-anwendungsserver"></a>
 ### 2.4 Flask und Gunicorn Anwendungsserver
 Unser Backend wird mit Python und insbesondere mit dem Flask-Framework verwaltet. Um dies zu erreichen, müssen wir Flask auf unserem Server installieren, um eine Anwendung zu erstellen und Gunicorn, einen Python WSGI HTTP Server, zu konfigurieren, der unsere Anwendung bedient.
 
+<!-- TOC --><a name="241-erstellung-einer-virtuellen-umgebung"></a>
 ### 2.4.1 Erstellung einer virtuellen Umgebung
-Da Python und PIP bereits installiert sind, müssen wir eine virtuelle Umgebung erstellen, in der wir alle notwendigen Pakete für unsere Anwendung, einschließlich Flask, installieren werden.  
+Da Python und PIP bereits installiert sind, müssen wir eine virtuelle Umgebung erstellen, in der wir alle notwendigen Pakete für unsere Anwendung, einschließlich Flask, installieren werden.
 
 Zunächst müssen wir das Modul ```python-venv``` installieren. Um dies zu tun:
 ```Console
@@ -256,6 +305,7 @@ Ausgabe:
 ```
 Das ```venv``` am Anfang bestätigt, dass wir uns in einer virtuellen Umgebung befinden und wir können mit der Installation aller notwendigen Pakete beginnen.
 
+<!-- TOC --><a name="242-flask-und-gunicorn-installation"></a>
 ### 2.4.2 Flask und Gunicorn Installation
 Als nächstes, müssen wir Flask und Gunicorn installieren:
 ```Console
@@ -286,10 +336,11 @@ Um unsere App zu testen:
 
 Wenn wir unsere Website in einem Webbrowser mit ```http://server-ip:5000```, sollten wir ```Hello World!``` sehen.
 
+<!-- TOC --><a name="243-wsgi-einstiegspunkt"></a>
 ### 2.4.3 WSGI-Einstiegspunkt
-Als nächstes müssen wir eine WSGI-Datei erstellen. Diese wird Gunicorn (unserem Webserver) mitteilen, wie er mit unserer Anwendung interagieren soll.  
+Als nächstes müssen wir eine WSGI-Datei erstellen. Diese wird Gunicorn (unserem Webserver) mitteilen, wie er mit unserer Anwendung interagieren soll.
 
-Wir erstellen eine Datei namens wsgi.py in unserem Anwendungsordner.  
+Wir erstellen eine Datei namens wsgi.py in unserem Anwendungsordner.
 ```Console
 (venv) pinghero@ubuntu:~$ vim ~/tempmonitor/wsgi.py
 ```
@@ -300,6 +351,7 @@ from myproject import app
 if __name__ == "__main__":
     app.run()
 ```
+<!-- TOC --><a name="244-gunicorn-konfiguration"></a>
 ### 2.4.4 Gunicorn Konfiguration
 Anschließend müssen wir einen Systemprozess für Gunicorn erstellen. Dies ermöglicht es unserem Betriebssystem, Gunicorn automatisch zu starten und unsere Flask-Anwendung zu bedienen, sobald der Server neu gestartet wird.
 
@@ -330,6 +382,7 @@ Dann starten wir den Prozess mit:
 pinghero@ubuntu:~$ sudo systemctl start myproject
 pinghero@ubuntu:~$ sudo systemctl enable myproject
 ```
+<!-- TOC --><a name="245-nginx-konfiguration"></a>
 ### 2.4.5 NGINX Konfiguration
 Gunicorn läuft nun als Prozess und wartet auf Anfragen an die socket ```tempmonitor.sock```. Wir müssen nun NGNIX so konfigurieren, dass es eingehende Anfragen an diese socket weiterleitet, damit sie an unsere Anwendung weitergeleitet werden können.
 
@@ -355,10 +408,12 @@ pinghero@ubuntu:~$ sudo ufw allow 'Nginx Full'
 ```
 Wenn wir nun den Browser öffnen und unsere URL eingeben, sollten wir die String ```"Hello World!"``` sehen.
 
+<!-- TOC --><a name="25-ssl-zertifikat"></a>
 ### 2.5 SSL-Zertifikat
 Unser Webserver ist jetzt betriebsbereit. Er leitet den Webverkehr zu unserer Flask-Anwendung um. Dies geschieht jedoch über das HTTP-Protokoll, das nicht verschlüsselt ist. Das ist natürlich suboptimal, da die Kommunikation von und zu unserem Server anfällig für Angriffe ist. Um dieses Problem zu lösen, müssen wir ein TSL/SSL-Zertifikat von einer Zertifizierungsstelle (CA) erhalten.
-In meinem Fall ist dies <a href="https://www.digicert.com/">DigiCert</a>.  
+In meinem Fall ist dies <a href="https://www.digicert.com/">DigiCert</a>.
 
+<!-- TOC --><a name="251-ssl-zertifikat-hochladen"></a>
 ### 2.5.1 SSL-Zertifikat hochladen
 Nachdem mein Zertifikat ausgestellt wurde, erhielt ich eine Datei namens ```pinghero.pem```
 Als die Zertifikate ausgestellt wurden, erhielt ich drei Dateien: ```pinghero.pem``` und ```DigiCertCA.crt```. Die sind die so genante "primary" und "intermidiate" Zertifikate.  
@@ -375,6 +430,7 @@ sftp> put bundle.crt
 sftp> _.pinghero.online_private_key.key
 ```
 
+<!-- TOC --><a name="252-nginx-ssl-konfiguration"></a>
 ### 2.5.2 NGINX SSL-Konfiguration
 Nach dem erfolgreichen Hochladen des SSL-Zertifikats und meines privaten Schlüssels, müssen wir NGNIX für dessen Verwendung konfigurieren.
 
@@ -396,7 +452,7 @@ server_name pinghero.online www.pinghero.online;
 ```
 Dadurch wird NGINX angewiesen, Port 443 (HTTPS-Port) zu überwachen und unser Zertifikat zu verwenden.
 
-Außerdem sollten wir sicherstellen, dass nur HTTPS-Verkehr zugelassen wird.  
+Außerdem sollten wir sicherstellen, dass nur HTTPS-Verkehr zugelassen wird.
 
 In ```/etc/nginx/sites-enabled/default```:
 ```Console
@@ -411,9 +467,11 @@ server {
 
 Dadurch wird für jede HTTP-Anfrage auf unserem Server der "HTTP code 301" zurückgegeben.
 
+<!-- TOC --><a name="3-datenbank-einrichtung"></a>
 ## 3. Datenbank Einrichtung
 Um unsere Temperaturmessungen auf unserem Server speichern zu können, benötigen wir eine Datenbank. Es gibt viele SQL Server-Optionen, aber ich habe mich für MariaDB entschieden.
 
+<!-- TOC --><a name="31-mariadb-installation"></a>
 ### 3.1 MariaDB Installation
 Um MariaDb Server zu installieren:
 ```Console
@@ -424,6 +482,7 @@ Dann müssen wir den Server mit dem Befehl starten:
 pinghero@ubuntu:~$ sudo systemctl start mariadb.service
 ```
 
+<!-- TOC --><a name="32-mariadb-konfiguration"></a>
 ### 3.2 MariaDB Konfiguration
 MariaDB läuft jetzt, aber diese Befehle fordern den Benutzer nicht auf, ein Passwort zu erstellen oder die Konfiguration von MariaDB zu bearbeiten, die standardmäßig unsicher ist.  
 Um dies zu verhindern, müssen wir das Skript ```mysql_secure_installation``` ausführen:
@@ -433,17 +492,17 @@ pinghero@ubuntu:~$ sudo mysql_secure_installation
 Das Skript fordert unter anderem die Konfiguration des Passworts für den Root-Benutzer und die Konfiguration des Fernzugriffs an.
 Weitere Informationen über das Skript finden Sie <a href="https://dev.mysql.com/doc/refman/8.0/en/mysql-secure-installation.html">hier</a>.
 
+<!-- TOC --><a name="33-datenbank-tabellen"></a>
 ### 3.3 Datenbank Tabellen
-Die Datenbank hat zwei Tabellen: ```measurements``` und ```users```.  
-Ihre Verwendung wird unter HIERHIER ausführlich beschrieben.
+Die Datenbank hat zwei Tabellen: ```measurements``` und ```users```.
 
 Die Tabelle ```measurements``` hat die folgenden Spalten:
 - ID (Primärschlüssel)
-- Temperature 
+- Temperature
 - Humidity
-- Location  
+- Location
 
-Befehl ```CREATE TABLE```:  
+Befehl ```CREATE TABLE```:
 ```SQL
 CREATE TABLE measurments(ID MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, TEMPERATURE FLOAT, HUMIDITY FLOAT, LOCATION CHAR(50), CREATED_ON TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
 ```
@@ -457,9 +516,10 @@ Befehl ```CREATE TABLE```:
 CREATE TABLE users(username CHAR(15) NOT NULL UNIQUE, SALT BINARY(32), PWD_HASH BINARY(32));
 ```
 
+<!-- TOC --><a name="34-flask-sqlalchemy"></a>
 ### 3.4 Flask-SQLAlchemy
 Für die Kommunikation zwischen Python und der Datenbank wird Flask-SQLAlchemy benötigt.  
-SQLAlchemy ist ein SQL-Toolkit, das effizienten und leistungsstarken Datenbankzugriff für relationale Datenbanken bietet. 
+SQLAlchemy ist ein SQL-Toolkit, das effizienten und leistungsstarken Datenbankzugriff für relationale Datenbanken bietet.
 
 SQLAlchemy ist in der [db_models.py](database/db_models.py) instanziert. Dann wird es initialisiert in [flaskapp.py](flaskapp.py)
 Es werden auch zwei Klassen für die Datenbanktabellen definiert: ```measurements``` and ```users```.
@@ -467,10 +527,12 @@ Die sind nach den Datenbanktabellen modelliert. Mit diesen beiden Klassen und de
 
 Alle Datenbankzugriffsoperationen erfolgen in [dao.py](dao.py)
 
+<!-- TOC --><a name="4-programmierung"></a>
 ## 4. Programmierung
 
+<!-- TOC --><a name="41-backend"></a>
 ### 4.1 Backend
-Es gibt 2 Hauptfunktionen, die der Server erfüllen kann. Diese sind: 
+Es gibt 2 Hauptfunktionen, die der Server erfüllen kann. Diese sind:
 - Hinzufügen einer neuen Messung [add_measurment()](route_functions.py)
 - Anzeigen der Messungen im Browser [show_measurements()](route_functions.py)
 
@@ -478,8 +540,9 @@ Zusätzlich gibt es weitere Hilfsfunktionen für:
 - Benutzerauthentifizierung [verify_password.py](verify_password.py)
 - Datenbank kommunikation mit Python [dao.py](dao.py)
 
+<!-- TOC --><a name="411-hinzufügen-einer-neuen-messung"></a>
 ### 4.1.1 Hinzufügen einer neuen Messung
-Damit der ESP-Controller eine neue Messung senden kann, wird eine POST-Anfrage an die ```pinghero.online/add``` Route unseres Servers gesendet. Wie der ESP Controller diese Anfragen sendet, wird in HIERHIER ausführlich beschrieben. Das Backend erwartet JSON-Daten, die die folgende Struktur haben:  
+Damit der ESP-Controller eine neue Messung senden kann, wird eine POST-Anfrage an die ```pinghero.online/add``` Route unseres Servers gesendet. Wie der ESP Controller diese Anfragen sendet, wird in [4.3 ESP32-Controller](#43-esp32-controller) beschrieben. Das Backend erwartet JSON-Daten, die die folgende Struktur haben:
 ```JSON
 {
   "temperature": "20.1",
@@ -487,23 +550,26 @@ Damit der ESP-Controller eine neue Messung senden kann, wird eine POST-Anfrage a
   "location":"Location A"
 }
 ```
-Wenn die Benutzerauthentifizierung (Siehe HIEHIER) erfolgreich war und die Daten die richtige Struktur haben, wird die neue Messung in die Datenbank geschrieben (Siehe HIEREHIER).
+Wenn die Benutzerauthentifizierung (Siehe [4.1.3 Benutzerauthentifizierung](#413-benutzerauthentifizierung)) erfolgreich war und die Daten die richtige Struktur haben, wird die neue Messung in die Datenbank geschrieben.
 
+<!-- TOC --><a name="412-anzeigen-der-messungen-im-browser"></a>
 ### 4.1.2 Anzeigen der Messungen im Browser
 Wenn der Benutzer ```pinghero.online``` besucht, wird er mit einer Tabelle aller in der Datenbank verfügbaren Messungen begrüßt.  
-Die Daten werden zunächst aus der Datenbank gelesen. Sie werden an die HTML-Datei [measurements.html](templates/measurements.html) übergeben. Dort wird mittels Javascript-Code eine Tabelle dynamisch erzeugt. Wenn der Benutzer es wünscht, kann er die Daten sortieren (Siehe HIERHIER) oder Suchparameter anwenden (Siehe HIERHIER).
+Die Daten werden zunächst aus der Datenbank gelesen. Sie werden an die HTML-Datei [measurements.html](templates/measurements.html) übergeben. Dort wird mittels Javascript-Code eine Tabelle dynamisch erzeugt. Wenn der Benutzer es wünscht, kann er die Daten sortieren oder Suchparameter anwenden (Siehe [4.2.2 Filter Funktion](#422-filter-funktion)).
 
 
+<!-- TOC --><a name="413-benutzerauthentifizierung"></a>
 ### 4.1.3 Benutzerauthentifizierung
 Die Benutzerdaten werden in der Tabelle ```users``` gespeichert. Wenn eine neue Anfrage eine Autorisierung erfordert, wird der in der "Request header" der Anfrage angegebene Benutzername gelesen und eine Abfrage in der ```users``` Tabelle durchgeführt. (Siehe [verify_password.py](verify_password.py))
 
-Wenn ein Benutzer mit dem angegebenen Benutzernamen existiert, wird ein Hash mit dem angegebenen Passwort und dem aus der Datenbank gelesenen Salt-Wert erzeugt.  
+Wenn ein Benutzer mit dem angegebenen Benutzernamen existiert, wird ein Hash mit dem angegebenen Passwort und dem aus der Datenbank gelesenen Salt-Wert erzeugt.
 
 ```Python
 generated_hash = hashlib.sha256(user.salt.encode() + password.encode()).hexdigest()
 ```
 Wenn der generierte Passwort-Hash mit dem in der Benutzertabelle für diesen Benutzer gespeicherten Hash übereinstimmt, wird ihm der Zugang gewährt.
 
+<!-- TOC --><a name="42-frontend"></a>
 ### 4.2 Frontend
 Die Daten werden auf dem Frontend auf zwei Arten dargestellt:
 - Ein Diagramm, das die durchschnittliche Temperatur jedes Tages für die Messungen der letzten 10 Tage enthält.
@@ -513,6 +579,7 @@ Zu den zusätzlichen Funktionen gehören:
 - Filter-Buttons, die angeklickt werden können, um Eingabefelder für die Filterung der einzelnen Messattribute zu öffnen.
 - Sort-Buttons built on the table headers.
 
+<!-- TOC --><a name="421-diagramm"></a>
 ### 4.2.1 Diagramm
 <p align="center">
   <img src="./img/chart.png" alt="Chart" width="400">
@@ -520,6 +587,7 @@ Zu den zusätzlichen Funktionen gehören:
 Der Graph wird mit Hilfe der Javascript-Bibliothek <a href="https://www.chartjs.org/">Chart.js</a> erstellt.  
 Der Quellcode ist zu finden in [measurements.html](templates/measurements.html).
 
+<!-- TOC --><a name="422-filter-funktion"></a>
 ### 4.2.2 Filter Funktion
 <p align="center">
   <img src="./img/filters.png" alt="Filter buttons" width="400">
@@ -530,8 +598,20 @@ Wenn die Filter angewendet werden, wird ein AJAX-Aufruf der Route ```/get_filter
 Dann führt Flask eine Datenbankabfrage basierend auf den vom Benutzer angegebenen Filtern aus. (Siehe [get_filtered_data](dao.py))  
 Die Messdaten werden dann in JSON umgewandelt und an das Frontend zurückgegeben, wo die Tabelle dynamisch aktualisiert wird.
 
-### 4.3 ESP-Controller
+<!-- TOC --><a name="43-esp32-controller"></a>
+### 4.3 ESP32-Controller
+[read_temps.ino](esp/read_temps.ino)
 
+Das ESP-Controller liest die Temperaturdaten mit Hilfe der ```DHT.h``` Bibliothek. Dann stellt es eine Verbindung mit dem im Code angegebenen WLAN her und erstellt JSON-Daten mit der oben genannten Struktur. Anschließend sendet es die JSON-Daten mit dem ebenfalls im Code angegebenen Basic Authentication Header und wartet 5 Sekunden, bevor es den Vorgang wiederholt.
+
+<!-- TOC --><a name="5-glossar"></a>
+
+## 5. Glossar
+| Begriff                    | Kurzbeschreibung  | Quelle  |
+|----------------------------|---|---|
+|  |   |   |
+|                            |   |   |
+|                            |   |   |
 
 
 
