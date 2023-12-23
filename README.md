@@ -92,6 +92,7 @@ Nach Eingabe des Passworts in die Eingabeaufforderung habe ich mich erfolgreich 
 <!-- TOC --><a name="211-neuen-benutzer-anlegen"></a>
 ### 2.1.1 Neuen Benutzer anlegen
 Nach erfolgreicher Verbindung zum Server musste ein neuer Benutzer angelegt werden.  
+
 Dies kann mit folgendem [Linux](#linux-id)-Befehl erreicht werden:
 ```Console
 root@ubuntu:~$ adduser <username>
@@ -105,7 +106,9 @@ root@ubuntu:~$ usermod -aG sudo <username>
 <!-- TOC --><a name="212-ssh-schlüssel-generierung"></a>
 ### 2.1.2 SSH-Schlüssel-Generierung
 Um sicherzustellen, dass der Server gegen mögliche Angriffe geschützt ist, ist eine Authentifizierung mit [SSH](#ssh-id)-Schlüssel erforderlich.  
+
 Dazu müssen wir zunächst ein [RSA](#rsa-id)-Schlüsselpaar auf dem Gerät erstellen, von dem aus wir eine Verbindung herstellen wollen.  
+
 Dies kann je nach verwendetem Betriebssystem unterschiedlich sein. In meinem Fall habe ich [WSL2](#wsl-id) auf meinem Computer verwendet, um eine Verbindung zu meinem Server herzustellen
 
 Lokal auf dem Gerät:
@@ -190,8 +193,11 @@ Um die [SSH](#ssh-id)-Konfigurationsdatei zu öffnen:
 <username>@ubuntu:~$ vim /etc/ssh/sshd_config
 ```
 Dann müssen wir die Option ```PasswordAuthentication``` auf ```no``` ändern.  
+
 Da wir nun einen neuen Benutzer haben, der sich mit dem Server verbinden kann und [sudo](#sudo-id)-Rechte hat, können wir den [Root](#Root-id)-Authentifizierung komplett deaktivieren, um unseren Server weiter vor möglichen Angriffen zu schützen. Zu diesem Zweck ändern wir ```PermitRootLogin``` auch auf ```no```.   
+
 Damit die Änderungen durchgeführt werden können, starten wir den [SSH](#ssh-id)-Dienst neu mit ```sudo systemctl restart ssh```.  
+
 Jetzt können wir uns nur noch mit unserem Benutzer und dem generierten [SSH](#ssh-id)-Schlüssel verbinden.
 
 <!-- TOC --><a name="22-domain-konfiguration"></a>
@@ -234,6 +240,7 @@ Output
 <!-- TOC --><a name="232-nginx-erstkonfiguration"></a>
 ### 2.3.2 NGINX-Erstkonfiguration
 Wir müssen einen benutzerdefinierten Serverblock mit unserer Domain und dem Proxy für den Anwendungsserver hinzufügen.  
+
 Damit wird [NGINX](#nginx-id) im Wesentlichen mitgeteilt, welche Ports es abhören und welche Webseiten es bei einer Anfrage bereitstellen soll.
 
 Zu diesem Zweck erstellen wir eine neue Konfigurationsdatei für [NGINX](#nginx-id):
@@ -407,14 +414,14 @@ Wenn wir nun den Browser öffnen und unsere URL eingeben, sollten wir die String
 
 <!-- TOC --><a name="25-ssl-zertifikat"></a>
 ### 2.5 SSL-Zertifikat
-Unser Webserver ist jetzt betriebsbereit. Er leitet den Webverkehr zu unserer [Flask](#Flask-id)-Anwendung um. Dies geschieht jedoch über das [HTTP](#http-id)-Protokoll, das nicht verschlüsselt ist. Das ist natürlich suboptimal, da die Kommunikation von und zu unserem Server anfällig für Angriffe ist. Um dieses Problem zu lösen, müssen wir ein [SSL-Zertifikat](#ssl-id) von einer [Zertifizierungsstelle (CA)](#ca-id) erhalten.
+Unser Webserver ist jetzt betriebsbereit. Er leitet den Webverkehr zu unserer [Flask](#Flask-id)-Anwendung um. Dies geschieht jedoch über das [HTTP](#http-id)-Protokoll, das nicht verschlüsselt ist. Das ist natürlich suboptimal, da die Kommunikation von und zu unserem Server anfällig für Angriffe ist. Um dieses Problem zu lösen, müssen wir ein [SSL-Zertifikat](#ssl-id) von einer [Zertifizierungsstelle (CA)](#ca-id) erhalten.  
+
 In meinem Fall ist dies <a href="https://www.digicert.com/">DigiCert<sup>[external]</sup></a>.
 
 <!-- TOC --><a name="251-ssl-zertifikat-hochladen"></a>
 ### 2.5.1 SSL-Zertifikat hochladen
-Nachdem mein Zertifikat ausgestellt wurde, erhielt ich eine Datei namens ```pinghero.pem```
-Als die Zertifikate ausgestellt wurden, erhielt ich drei Dateien: ```pinghero.pem``` und ```DigiCertCA.crt```. Die sind die so genante "primary" und "intermidiate" Zertifikate.  
-Zusätzlich habe ich eine private Schlüsseldatei namens ```_.pinghero.online_private_key.key```.  
+Nachdem mein Zertifikat ausgestellt wurde, erhielt ich eine Datei namens ```pinghero.pem```. Als die Zertifikate ausgestellt wurden, erhielt ich drei Dateien: ```pinghero.pem``` und ```DigiCertCA.crt```. Die sind die so genante "primary" und "intermidiate" Zertifikate. Zusätzlich habe ich eine private Schlüsseldatei namens ```_.pinghero.online_private_key.key```.  
+
 Nachdem ich die Dateien erhalten habe, habe ich lokal auf mein Computer eine einzige ```.crt``` Datei erstellt, die beide Zertifikate enthält:
 ```Console
 pinghero@desktop:~$ cat your_domain_name.crt DigiCertCA.crt >> bundle.crt
@@ -482,6 +489,7 @@ pinghero@ubuntu:~$ sudo systemctl start mariadb.service
 <!-- TOC --><a name="32-mariadb-konfiguration"></a>
 ### 3.2 MariaDB Konfiguration
 [MariaDB](#mariadb-id) läuft jetzt, aber diese Befehle fordern den Benutzer nicht auf, ein Passwort zu erstellen oder die Konfiguration von MariaDB zu bearbeiten, die standardmäßig unsicher ist.  
+
 Um dies zu verhindern, müssen wir das Skript ```mysql_secure_installation``` ausführen:
 ```Console
 pinghero@ubuntu:~$ sudo mysql_secure_installation
@@ -516,11 +524,10 @@ CREATE TABLE users(username CHAR(15) NOT NULL UNIQUE, SALT BINARY(32), PWD_HASH 
 <!-- TOC --><a name="34-flask-sqlalchemy"></a>
 ### 3.4 Flask-SQLAlchemy
 Für die Kommunikation zwischen [Python](#python-id) und der Datenbank wird Flask-SQLAlchemy benötigt.  
-SQLAlchemy ist ein [SQL](#SQL-id)-Toolkit, das effizienten und leistungsstarken Datenbankzugriff für relationale Datenbanken bietet.
 
-SQLAlchemy ist in der [db_models.py](database/db_models.py) instanziert. Dann wird es initialisiert in [flaskapp.py](flaskapp.py)
-Es werden auch zwei Klassen für die Datenbanktabellen definiert: ```measurements``` and ```users```.
-Die sind nach den Datenbanktabellen modelliert. Mit diesen beiden Klassen und der Instanz von SQLAlchemy können wir in der Datenbank lesen oder schreiben.
+SQLAlchemy ist ein [SQL](#SQL-id)-Toolkit, das effizienten und leistungsstarken Datenbankzugriff für relationale Datenbanken bietet.  
+
+SQLAlchemy ist in der [db_models.py](database/db_models.py) instanziert. Dann wird es initialisiert in [flaskapp.py](flaskapp.py). Es werden auch zwei Klassen für die Datenbanktabellen definiert: ```measurements``` and ```users```. Die sind nach den Datenbanktabellen modelliert. Mit diesen beiden Klassen und der Instanz von SQLAlchemy können wir in der Datenbank lesen oder schreiben.
 
 Alle Datenbankzugriffsoperationen erfolgen in [dao.py](dao.py)
 
@@ -551,9 +558,7 @@ Wenn die Benutzerauthentifizierung (Siehe [4.1.3 Benutzerauthentifizierung](#413
 
 <!-- TOC --><a name="412-anzeigen-der-messungen-im-browser"></a>
 ### 4.1.2 Anzeigen der Messungen im Browser
-Wenn der Benutzer ```pinghero.online``` besucht, wird er mit einer Tabelle aller in der Datenbank verfügbaren Messungen begrüßt.  
-Die Daten werden zunächst aus der Datenbank gelesen. Sie werden an die [HTML](#html-id)-Datei [measurements.html](templates/measurements.html) übergeben. Dort wird mittels [Javascript](#js-id)-Code eine Tabelle dynamisch erzeugt. Wenn der Benutzer es wünscht, kann er die Daten sortieren oder Suchparameter anwenden (Siehe [4.2.2 Filter Funktion](#422-filter-funktion)).
-
+Wenn der Benutzer ```pinghero.online``` besucht, wird er mit einer Tabelle aller in der Datenbank verfügbaren Messungen begrüßt. Die Daten werden zunächst aus der Datenbank gelesen. Sie werden an die [HTML](#html-id)-Datei [measurements.html](templates/measurements.html) übergeben. Dort wird mittels [Javascript](#js-id)-Code eine Tabelle dynamisch erzeugt. Wenn der Benutzer es wünscht, kann er die Daten sortieren oder Suchparameter anwenden (Siehe [4.2.2 Filter Funktion](#422-filter-funktion)).
 
 <!-- TOC --><a name="413-benutzerauthentifizierung"></a>
 ### 4.1.3 Benutzerauthentifizierung
@@ -593,9 +598,7 @@ Der Quellcode ist zu finden in [measurements.html](templates/measurements.html).
 </p>
 Es gibt vier Tasten für die Filterfunktion. Jede, wenn sie angeklickt wird, offenbart Eingabefelder für Temperatur, Luftfeuchtigkeit, Ort und Datum.  
 
-Wenn die Filter angewendet werden, wird ein [AJAX](#ajax-id)-Aufruf der Route ```/get_filtered_table_data``` ausgeführt. (Siehe [filter_data.js](static/js/filter_data.js))  
-Dann führt [Flask](#Flask-id) eine Datenbankabfrage basierend auf den vom Benutzer angegebenen Filtern aus. (Siehe [get_filtered_data](dao.py))  
-Die Messdaten werden dann in [JSON](#json-id) umgewandelt und an das [Frontend](#Frontend-id) zurückgegeben, wo die Tabelle dynamisch aktualisiert wird.
+Wenn die Filter angewendet werden, wird ein [AJAX](#ajax-id)-Aufruf der Route ```/get_filtered_table_data``` ausgeführt. (Siehe [filter_data.js](static/js/filter_data.js)). Dann führt [Flask](#Flask-id) eine Datenbankabfrage basierend auf den vom Benutzer angegebenen Filtern aus. (Siehe [get_filtered_data](dao.py)). Die Messdaten werden dann in [JSON](#json-id) umgewandelt und an das [Frontend](#Frontend-id) zurückgegeben, wo die Tabelle dynamisch aktualisiert wird.
 
 <!-- TOC --><a name="43-esp32-controller"></a>
 ### 4.3 ESP32-Controller
