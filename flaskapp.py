@@ -61,13 +61,13 @@ def add():
     return add_measurment(request=request)
 
 
-@app.route("/add", methods=['POST'])
+@app.route("/announce", methods=['POST'])
 @auth.login_required
 def announce():
     return announce()
 
 
-@app.route("/add", methods=['POST'])
+@app.route("/peers", methods=['GET'])
 @auth.login_required
 def get_peers():
     return get_peers()
